@@ -12,7 +12,7 @@ using namespace std;
 using namespace cv;
 
 #define APRILTAGS_INTRUDE_DETECTOR_VIEW "AprilTags Intrude Detector"
-#define APRILTAGS_INTRUDE_MSG_NAME      "apriltaps_intrude"
+#define APRILTAGS_INTRUDE_MSG_NAME      "apriltags_intrude"
 
 
 void AprilTagsIntrudeDetector::image_callback( const sensor_msgs::ImageConstPtr& msg) {
