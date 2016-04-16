@@ -6,10 +6,7 @@ int main( int argc, char** argv ) {
   for( unsigned int i=0; i < argc; i++ ) {
     std::cout << i << " " << argv[i] << std::endl;
   }
-  AprilTagsTracker tracker;  
-  if( argc > 1 ) {
-    tracker.loadFile( argv[1] );
-  }
+  AprilTagsIntrudeDetector detector;  
   ros::spin();
   return 0;
 }

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+   <node pkg="apriltags_intrude_detector" type="apriltags_intrude_detector" name="apriltags_intrude_detector" output="screen"/>
+</launch>

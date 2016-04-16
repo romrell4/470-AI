@@ -12,47 +12,64 @@ find_package(catkin REQUIRED COMPONENTS
              image_transport
              std_msgs
              message_generation
-             apriltags
             )
 
 #find_package(OpenCV 2.4 REQUIRED COMPONENTS core highgui imgproc calib3d
 #                                            ml features2d objdetect )
 find_package(OpenCV REQUIRED)
+if( NOT OpenCV_FOUND ) 
+  message( FATAL_ERROR "OpenCV not found\n" )
+  return()
+endif()
 
-add_message_files (
+find_package(CGAL REQUIRED)
+if( NOT CGAL_FOUND )
+  message( FATAL_ERROR "CGAL not found\n" ) 
+  return()
+endif()
+
+# Find package apriltags
+find_package(PkgConfig)
+pkg_check_modules(APRILTAGS apriltags)
+if( NOT APRILTAGS_FOUND )
+  message( "Apriltags not found\n" )
+  return()
+endif()
+find_path(APRILTAGS_INCLUDE_DIR AprilTags/TagDetector.h
+    HINTS ${APRILTAGS_INCLUDEDIR} ${APRILTAGS_INCLUDE_DIRS})
+
+find_library(APRILTAGS_LIBRARY apriltags
+    HINTS ${APRILTAGS_LIBDIR} ${APRILTAGS_LIBRARY_DIRS})
+
+add_service_files(
   FILES
-  apriltags_intrude.msg
+  apriltags_intrude.srv
 )
 
-generate_messages (
-  DEPENDENCIES
-  std_msgs
-)
+generate_messages ()
 
 # Declare this project as a catkin package
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES hello_world
-   CATKIN_DEPENDS message_runtime
+   CATKIN_DEPENDS roscpp message_runtime
 )
 
+include( ${CGAL_USE_FILE} )
 
 # Add the headers from roscpp
 include_directories(include ${catkin_INCLUDE_DIRS}
                             ${OpenCV_INCLUDE_DIRS}
-                            /usr/local/include
+                            ${CGAL_INCLUDE_DIR}
+                            ${APRILTAGS_INCLUDE_DIRS}
                             /usr/include/eigen3
                             )
-
-# Define a library target called hello_world
-#add_library(hello_world src/hello_world.cpp)
-#target_link_libraries(hello_world ${roscpp_LIBRARIES})
 
 add_executable(apriltags_intrude_detector src/apriltags_intrude_detector.cpp
                                           src/apriltags_intrude_detector_demo.cpp
               )
 target_link_libraries(apriltags_intrude_detector ${catkin_LIBRARIES} 
                                                  ${OpenCV_LIBRARIES}
+                                                 ${CGAL_LIBRARIES}
+                                                 ${APRILTAGS_LIBRARY_DIRS}
                                                  apriltags
                      )
 
