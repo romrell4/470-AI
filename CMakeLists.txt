@@ -16,6 +16,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 #find_package(OpenCV 2.4 REQUIRED COMPONENTS core highgui imgproc calib3d
 #                                            ml features2d objdetect )
+
+find_package(cmake_modules)
+find_package(Eigen REQUIRED)
+
 find_package(OpenCV REQUIRED)
 if( NOT OpenCV_FOUND ) 
   message( FATAL_ERROR "OpenCV not found\n" )
@@ -60,7 +64,7 @@ include_directories(include ${catkin_INCLUDE_DIRS}
                             ${OpenCV_INCLUDE_DIRS}
                             ${CGAL_INCLUDE_DIR}
                             ${APRILTAGS_INCLUDE_DIRS}
-                            /usr/include/eigen3
+                            ${Eigen_INCLUDE_DIRS} 
                             )
 
 add_executable(apriltags_intrude_detector src/apriltags_intrude_detector.cpp
@@ -69,8 +73,7 @@ add_executable(apriltags_intrude_detector src/apriltags_intrude_detector.cpp
 target_link_libraries(apriltags_intrude_detector ${catkin_LIBRARIES} 
                                                  ${OpenCV_LIBRARIES}
                                                  ${CGAL_LIBRARIES}
-                                                 ${APRILTAGS_LIBRARY_DIRS}
-                                                 apriltags
+                                                 ${APRILTAGS_LIBRARY}
                      )
 
 add_executable(intrude_client src/intrude_client.cpp

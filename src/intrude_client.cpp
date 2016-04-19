@@ -18,7 +18,10 @@ void IntrudeClient::position_callback( const geometry_msgs::Pose2D& msg ) {
   srv.request.x = msg.x;
   srv.request.y = msg.y;
   if( m_client.call(srv) ) {
-    ROS_INFO("Intrude ID: %d", (int)srv.response.id);
+    int id = (int)srv.response.id;
+    if( id >= 0 ) {
+      ROS_INFO("Intrude ID: %d", id);
+    }
   }
   else {
     ROS_ERROR("Failed to call service apriltags_intrude");
