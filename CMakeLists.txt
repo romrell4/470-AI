@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 #                                            ml features2d objdetect )
 
 find_package(cmake_modules)
-find_package(Eigen REQUIRED)
+#find_package(Eigen REQUIRED)
 
 find_package(OpenCV REQUIRED)
 if( NOT OpenCV_FOUND ) 
