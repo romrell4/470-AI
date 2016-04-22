@@ -18,13 +18,16 @@ find_package(catkin REQUIRED COMPONENTS
 #                                            ml features2d objdetect )
 
 find_package(cmake_modules)
-#find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 find_package(OpenCV REQUIRED)
 if( NOT OpenCV_FOUND ) 
   message( FATAL_ERROR "OpenCV not found\n" )
   return()
 endif()
+
+
 
 find_package(CGAL REQUIRED)
 if( NOT CGAL_FOUND )
@@ -64,7 +67,6 @@ include_directories(include ${catkin_INCLUDE_DIRS}
                             ${OpenCV_INCLUDE_DIRS}
                             ${CGAL_INCLUDE_DIR}
                             ${APRILTAGS_INCLUDE_DIRS}
-                            ${Eigen_INCLUDE_DIRS} 
                             )
 
 add_executable(apriltags_intrude_detector src/apriltags_intrude_detector.cpp
