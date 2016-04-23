@@ -92,14 +92,13 @@ bool AprilTagsIntrudeDetector::get_info(apriltags_intrude_detector::apriltags_in
        it != m_tags.end(); it ++ ) {
     pair<AprilTags::TagDetection, Polygon2D> data = (*it);
     geometry_msgs::Polygon poly;
-    poly.points.push_back(data.first.p[0].first);
-    poly.points.push_back(data.first.p[0].second);
-    poly.points.push_back(data.first.p[1].first);
-    poly.points.push_back(data.first.p[1].second);
-    poly.points.push_back(data.first.p[2].first);
-    poly.points.push_back(data.first.p[2].second);
-    poly.points.push_back(data.first.p[3].first);
-    poly.points.push_back(data.first.p[3].second);
+    for(unsigned int i=0; i<4;i++) {
+      geometry_msgs::Point32 p;
+      p.x = data.first.p[i].first;
+      p.y = data.first.p[i].second;
+      p.z = 0.0;
+      poly.points.push_back(p);
+    }
     res.polygons.push_back(poly);
     res.ids.push_back(data.first.id);
   }
