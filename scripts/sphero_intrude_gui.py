@@ -132,7 +132,7 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.stateTextbox.update()
 
     def queryAprilTagsInfo(self):
-        print "clicked"
+        #print "clicked"
         rospy.wait_for_service("apriltags_info")
         try:
             info_query = rospy.ServiceProxy("apriltags_info", apriltags_info)
@@ -145,8 +145,8 @@ class SpheroIntrudeForm(QtGui.QWidget):
                 poly = resp.polygons[i]
                 t_id = resp.ids[i]
 
-                print(str(poly))
-                print(str(t_id))
+                #print(str(poly))
+                #print(str(t_id))
                 info_text += "["+str(t_id)+"] "
                 for p in poly.points:
                     info_text += "(" + str(int(p.x)) + "," + str(int(p.y)) + ")"
@@ -157,6 +157,7 @@ class SpheroIntrudeForm(QtGui.QWidget):
             print "Service call failed: %s"%e
         
     def updateAprilTagsTextbot(self, value):
+        self.aprilTagsTextbox.clear()
         self.aprilTagsTextbox.moveCursor(QtGui.QTextCursor.End)
         self.aprilTagsTextbox.ensureCursorVisible()
         self.aprilTagsTextbox.append(str(value))

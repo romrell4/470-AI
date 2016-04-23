@@ -37,11 +37,11 @@ void AprilTagsIntrudeDetector::image_callback( const sensor_msgs::ImageConstPtr&
   int key_value = cv::waitKey(30);
   if( key_value >= 0 ) {
     cout << "key value " << key_value << endl;
-    if( key_value == 1048689 ) {
+    if( key_value==(int)('q') || key_value==1048689 ) {
       // value of q
       ros::shutdown();
     }
-    else if( key_value == 1048693 ) {
+    else if( key_value==(int)('u') || key_value==1048693 ) {
       // value of u
       cout << " U Pressed " << endl;
       m_update_tags = true;    
