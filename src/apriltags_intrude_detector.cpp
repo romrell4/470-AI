@@ -13,6 +13,7 @@ using namespace cv;
 
 #define APRILTAGS_INTRUDE_DETECTOR_VIEW "AprilTags Intrude Detector"
 #define APRILTAGS_INTRUDE_MSG_NAME      "apriltags_intrude"
+#define APRILTAGS_INFO_MSG_NAME         "apriltags_info"
 
 
 void AprilTagsIntrudeDetector::image_callback( const sensor_msgs::ImageConstPtr& msg) {
@@ -60,6 +61,7 @@ AprilTagsIntrudeDetector::AprilTagsIntrudeDetector( AprilTags::TagCodes codes  )
   mp_tag_detector = new AprilTags::TagDetector( m_tag_codes ); 
 
   m_intrude_srv = m_nh.advertiseService( APRILTAGS_INTRUDE_MSG_NAME, &AprilTagsIntrudeDetector::get_intrude, this);
+  m_info_srv = m_nh.advertiseService( APRILTAGS_INFO_MSG_NAME, &AprilTagsIntrudeDetector::get_info, this);
 
   m_update_tags = false;
 }
@@ -82,6 +84,26 @@ bool AprilTagsIntrudeDetector::get_intrude(apriltags_intrude_detector::apriltags
                                            apriltags_intrude_detector::apriltags_intrude::Response& res) {
    res.id = get_tag_id( req.x, req.y );
    return true;
+}
+
+bool AprilTagsIntrudeDetector::get_info(apriltags_intrude_detector::apriltags_info::Request& req,
+                                        apriltags_intrude_detector::apriltags_info::Response& res) {
+  for( vector< pair<AprilTags::TagDetection, Polygon2D> >::iterator it = m_tags.begin();
+       it != m_tags.end(); it ++ ) {
+    pair<AprilTags::TagDetection, Polygon2D> data = (*it);
+    geometry_msgs::Polygon poly;
+    poly.points.push_back(data.first.p[0].first);
+    poly.points.push_back(data.first.p[0].second);
+    poly.points.push_back(data.first.p[1].first);
+    poly.points.push_back(data.first.p[1].second);
+    poly.points.push_back(data.first.p[2].first);
+    poly.points.push_back(data.first.p[2].second);
+    poly.points.push_back(data.first.p[3].first);
+    poly.points.push_back(data.first.p[3].second);
+    res.polygons.push_back(poly);
+    res.ids.push_back(data.first.id);
+  }
+  return true; 
 }
 
 int AprilTagsIntrudeDetector::get_tag_id(int x, int y) {

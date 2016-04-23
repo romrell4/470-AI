@@ -2,8 +2,9 @@
 
 import sys, rospy, math
 from PyQt4 import QtGui, QtCore
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, Pose2D
 from std_msgs.msg import ColorRGBA, Float32, Bool
+from apriltags_intrude_detector import apriltags_intrude
 
 
 class SpheroIntrudeForm(QtGui.QWidget):
@@ -15,10 +16,10 @@ class SpheroIntrudeForm(QtGui.QWidget):
 
         rospy.init_node('sphero_intrude', anonymous=True)
         self.cmdVelPub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
-        self.cmdVelSub = rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallback)   
-        
+        self.cmdVelSub = rospy.Subscriber("cmd_vel", Twist, self.cmdVelCallback) 
+
+        self.trackposSub = rospy.Subscriber("tracked_pos", Pose2D, self.trackposCallback) 
        
-        
     def initUI(self):
 
         self.stateLabel = QtGui.QLabel("Position")
@@ -40,6 +41,8 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.connect(self, QtCore.SIGNAL("sendCmdVelText(PyQt_PyObject)"), self.updateCmdVelTextbox)
 
         self.aprilTagsInfoLabel = QtGui.QLabel("april tags info")
+        self.aprilTagsInfoBtn = QtGui.QPushButton("Query")
+        self.aprilTagsInfoBtn.clicked.connect(self.queryAprilTagsInfo)
         self.aprilTagsTextbox = QtGui.QTextEdit()
         self.aprilTagsTextbox.setReadOnly(True)
 
@@ -49,7 +52,10 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.layout.addWidget(self.keyInstructLabel)
         self.layout.addWidget(self.cmdVelLabel)
         self.layout.addWidget(self.cmdVelTextbox)
-        self.layout.addWidget(self.aprilTagsInfoLabel)
+        hlayout = QtGui.QHBoxLayout()
+        hlayout.addWidget(self.aprilTagsInfoLabel)
+        hlayout.addWidget(self.aprilTagsInfoBtn)
+        self.layout.addLayout(hlayout)
         self.layout.addWidget(self.aprilTagsTextbox)
         self.setLayout(self.layout)
 
@@ -106,6 +112,27 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.cmdVelTextbox.ensureCursorVisible()
         self.cmdVelTextbox.append(str(value))
         self.cmdVelTextbox.update()
+
+    def trackposCallback(self, msg):
+
+        rospy.wait_for_service("apriltags_intrude")
+        try:
+            intrude_query = rospy.ServiceProxy("apriltags_intrude", apriltags_intrude)
+            resp = intrude_query(int(msg.x), int(msg.y))
+            pos_id_text = "["+str(int(msg.x))+"," +str(int(msg.y))+"]" + "(" + str(resp.id) + ")"
+            self.emit(QtCore.SIGNAL("sendPosIDText(PyQt_PyObject)"), pos_id_text)
+        except rospy.ServiceException, e:
+            print "Service call failed: %s"%e
+
+    def updateStateTextbot(self, value):
+        self.stateTextbox.moveCursor(QtGui.QTextCursr.End)
+        self.stateTextbox.ensureCursorVisible()
+        self.stateTextbox.append(str(value))
+        self.stateTextbox.update()
+
+    def queryAprilTagsInfo(self):
+        print "clicked"
+        
         
 
 if __name__ == '__main__':

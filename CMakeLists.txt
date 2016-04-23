@@ -51,9 +51,13 @@ find_library(APRILTAGS_LIBRARY apriltags
 add_service_files(
   FILES
   apriltags_intrude.srv
+  apriltags_info.srv
 )
 
-generate_messages ()
+generate_messages (
+  DEPENDENCIES
+  geometry_msgs
+)
 
 # Declare this project as a catkin package
 catkin_package(
