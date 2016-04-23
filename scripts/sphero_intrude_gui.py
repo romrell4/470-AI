@@ -4,8 +4,8 @@ import sys, rospy, math
 from PyQt4 import QtGui, QtCore
 from geometry_msgs.msg import Twist, Pose2D
 from std_msgs.msg import ColorRGBA, Float32, Bool
-from apriltags_intrude_detector import apriltags_intrude
-
+from apriltags_intrude_detector.srv import apriltags_intrude
+from apriltags_intrude_detector.srv import apriltags_info
 
 class SpheroIntrudeForm(QtGui.QWidget):
     
@@ -24,7 +24,8 @@ class SpheroIntrudeForm(QtGui.QWidget):
 
         self.stateLabel = QtGui.QLabel("Position")
         self.stateTextbox = QtGui.QTextEdit()
-        self.stateTextbox.setReadOnly(True)     
+        self.stateTextbox.setReadOnly(True)
+        self.connect(self, QtCore.SIGNAL("sendPosIDText(PyQt_PyObject)"), self.updateStateTextbot)     
         
         key_instruct_label = """
 	Control Your Sphero!
@@ -45,6 +46,7 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.aprilTagsInfoBtn.clicked.connect(self.queryAprilTagsInfo)
         self.aprilTagsTextbox = QtGui.QTextEdit()
         self.aprilTagsTextbox.setReadOnly(True)
+        self.connect(self, QtCore.SIGNAL("sendTagInfoText(PyQt_PyObject)"), self.updateAprilTagsTextbot)
 
         self.layout =  QtGui.QVBoxLayout()
         self.layout.addWidget(self.stateLabel)
@@ -114,7 +116,6 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.cmdVelTextbox.update()
 
     def trackposCallback(self, msg):
-
         rospy.wait_for_service("apriltags_intrude")
         try:
             intrude_query = rospy.ServiceProxy("apriltags_intrude", apriltags_intrude)
@@ -125,15 +126,41 @@ class SpheroIntrudeForm(QtGui.QWidget):
             print "Service call failed: %s"%e
 
     def updateStateTextbot(self, value):
-        self.stateTextbox.moveCursor(QtGui.QTextCursr.End)
+        self.stateTextbox.moveCursor(QtGui.QTextCursor.End)
         self.stateTextbox.ensureCursorVisible()
         self.stateTextbox.append(str(value))
         self.stateTextbox.update()
 
     def queryAprilTagsInfo(self):
         print "clicked"
+        rospy.wait_for_service("apriltags_info")
+        try:
+            info_query = rospy.ServiceProxy("apriltags_info", apriltags_info)
+            resp = info_query()
+               
+            #print str(resp)
+
+            info_text = "" 
+            for i in range(len(resp.polygons)):
+                poly = resp.polygons[i]
+                t_id = resp.ids[i]
+
+                print(str(poly))
+                print(str(t_id))
+                info_text += "["+str(t_id)+"] "
+                for p in poly.points:
+                    info_text += "(" + str(int(p.x)) + "," + str(int(p.y)) + ")"
+                info_text += "\n" 
+
+            self.emit(QtCore.SIGNAL("sendTagInfoText(PyQt_PyObject)"), info_text)
+        except rospy.ServiceException, e:
+            print "Service call failed: %s"%e
         
-        
+    def updateAprilTagsTextbot(self, value):
+        self.aprilTagsTextbox.moveCursor(QtGui.QTextCursor.End)
+        self.aprilTagsTextbox.ensureCursorVisible()
+        self.aprilTagsTextbox.append(str(value))
+        self.aprilTagsTextbox.update()        
 
 if __name__ == '__main__':
 
