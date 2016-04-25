@@ -121,19 +121,19 @@ class SpheroIntrudeForm(QtGui.QWidget):
         twist = None       
         if e.key() == QtCore.Qt.Key_U:
             twist = Twist()
-            twist.linear.x = -20; twist.linear.y = 20; twist.linear.z = 0
+            twist.linear.x = -80; twist.linear.y = 80; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
         elif e.key() == QtCore.Qt.Key_I:
             twist = Twist()  
-            twist.linear.x = 0; twist.linear.y = 20; twist.linear.z = 0
+            twist.linear.x = 0; twist.linear.y = 80; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0     
         elif e.key() == QtCore.Qt.Key_O:
             twist = Twist()
-            twist.linear.x = 20; twist.linear.y = 20; twist.linear.z = 0
+            twist.linear.x = 80; twist.linear.y = 80; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
         elif e.key() == QtCore.Qt.Key_J:
             twist = Twist()
-            twist.linear.x = -20; twist.linear.y = 0; twist.linear.z = 0
+            twist.linear.x = -80; twist.linear.y = 0; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
         elif e.key() == QtCore.Qt.Key_K:
             twist = Twist()
@@ -141,19 +141,19 @@ class SpheroIntrudeForm(QtGui.QWidget):
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
         elif e.key() == QtCore.Qt.Key_L:
             twist = Twist()
-            twist.linear.x = 20; twist.linear.y = 0; twist.linear.z = 0
+            twist.linear.x = 80; twist.linear.y = 0; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
         elif e.key() == QtCore.Qt.Key_M:
             twist = Twist()
-            twist.linear.x = -20; twist.linear.y = -20; twist.linear.z = 0
+            twist.linear.x = -80; twist.linear.y = -80; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
         elif e.key() == QtCore.Qt.Key_Comma:
             twist = Twist()
-            twist.linear.x = 0; twist.linear.y = -20; twist.linear.z = 0
+            twist.linear.x = 0; twist.linear.y = -80; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0
         elif e.key() == QtCore.Qt.Key_Period:
             twist = Twist()
-            twist.linear.x = 20; twist.linear.y = -20; twist.linear.z = 0
+            twist.linear.x = 80; twist.linear.y = -80; twist.linear.z = 0
             twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0 
         if twist != None:
             self.cmdVelPub.publish(twist)
