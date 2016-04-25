@@ -8,6 +8,7 @@
 #include <AprilTags/TagDetector.h>
 #include <AprilTags/Tag36h11.h>
 #include "apriltags_intrude_detector/apriltags_intrude.h"
+#include "apriltags_intrude_detector/apriltags_info.h"
 #include "geo_datatype.h"
 
 class AprilTagsIntrudeDetector {
@@ -23,6 +24,9 @@ public:
  
   bool get_intrude( apriltags_intrude_detector::apriltags_intrude::Request& req,
                     apriltags_intrude_detector::apriltags_intrude::Response& res); 
+  bool get_info( apriltags_intrude_detector::apriltags_info::Request& req,
+                 apriltags_intrude_detector::apriltags_info::Response& res); 
+
   int get_tag_id( int x, int y );
   void visualize_tags( cv::Mat& image );
  
@@ -31,6 +35,7 @@ public:
   image_transport::Subscriber     m_sub;
 
   ros::ServiceServer              m_intrude_srv;
+  ros::ServiceServer              m_info_srv;
 
   std::vector<std::pair<AprilTags::TagDetection, Polygon2D> >  m_tags;  
 
