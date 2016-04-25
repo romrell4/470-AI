@@ -7,7 +7,51 @@ from std_msgs.msg import ColorRGBA, Float32, Bool
 from apriltags_intrude_detector.srv import apriltags_intrude
 from apriltags_intrude_detector.srv import apriltags_info
 
+
+# You implement this class
+class Controller:
+    stop = True # This is set to true when the stop button is pressed
+
+    def __init__(self):
+        self.cmdVelPub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+        self.trackposSub = rospy.Subscriber("tracked_pos", Pose2D, self.trackposCallback)
+
+    def trackposCallback(self, msg):
+        # This function is continuously called
+        if not self.stop:
+            twist = Twist()
+            # Change twist.linear.x to be your desired x velocity
+            twist.linear.x = 0
+            # Change twist.linear.y to be your desired y velocity
+            twist.linear.y = 0
+            twist.linear.z = 0
+            twist.angular.x = 0
+            twist.angular.y = 0
+            twist.angular.z = 0
+            self.cmdVelPub.publish(twist)
+
+    def start(self):
+        rospy.wait_for_service("apriltags_info")
+        try:
+            info_query = rospy.ServiceProxy("apriltags_info", apriltags_info)
+            resp = info_query()
+
+            for i in range(len(resp.polygons)):
+                # A polygon (access points using poly.points)
+                poly = resp.polygons[i]
+                # The polygon's id (just an integer, 0 is goal, all else is bad)
+                t_id = resp.ids[i]
+        except Exception, e:
+            print "Exception: " + str(e)
+        finally:
+            self.stop = False
+
+    def stop(self):
+        self.stop = True
+
+
 class SpheroIntrudeForm(QtGui.QWidget):
+    controller = Controller()
     
     def __init__(self):
         super(QtGui.QWidget, self).__init__()
@@ -48,6 +92,13 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.aprilTagsTextbox.setReadOnly(True)
         self.connect(self, QtCore.SIGNAL("sendTagInfoText(PyQt_PyObject)"), self.updateAprilTagsTextbot)
 
+        self.aprilTagsStartBtn = QtGui.QPushButton("Start")
+        self.aprilTagsStartBtn.clicked.connect(self.controller.start)
+
+        self.aprilTagsStopBtn = QtGui.QPushButton("Stop")
+        self.aprilTagsStopBtn.clicked.connect(self.controller.stop)
+
+
         self.layout =  QtGui.QVBoxLayout()
         self.layout.addWidget(self.stateLabel)
         self.layout.addWidget(self.stateTextbox)
@@ -57,6 +108,8 @@ class SpheroIntrudeForm(QtGui.QWidget):
         hlayout = QtGui.QHBoxLayout()
         hlayout.addWidget(self.aprilTagsInfoLabel)
         hlayout.addWidget(self.aprilTagsInfoBtn)
+        hlayout.addWidget(self.aprilTagsStartBtn)
+        hlayout.addWidget(self.aprilTagsStopBtn)
         self.layout.addLayout(hlayout)
         self.layout.addWidget(self.aprilTagsTextbox)
         self.setLayout(self.layout)
@@ -162,6 +215,7 @@ class SpheroIntrudeForm(QtGui.QWidget):
         self.aprilTagsTextbox.ensureCursorVisible()
         self.aprilTagsTextbox.append(str(value))
         self.aprilTagsTextbox.update()        
+
 
 if __name__ == '__main__':
 
