@@ -15,6 +15,9 @@ class Point:
         self.x = x
         self.y = y
 
+    def __str__(self):
+	return "x=" + str(self.x) + ", y=" + str(self.y)
+
 
 # Vector Class
 # Created by Jon Francis
@@ -25,10 +28,9 @@ class Vector:
         self.magnitude = magnitude
 
     def getPoint(self):
-	point = Point()
-	point.x = self.magnitude * math.acos(self.direction)
-	ponit.y = self.magnitude * math.asin(self.direction)
-	return point
+	x = self.magnitude * math.acos(self.direction)
+	y = self.magnitude * math.asin(self.direction)
+	return Point(x, y)
 
 # Field Class
 # Created by Jon Francis
@@ -40,6 +42,9 @@ class Field:
     def getVect(self, point):
         raise NotImplementedError("Subclass must implement abstract method")
 
+    def __str__(self):
+	return "id=" + str(self.id)
+
 
 # PolyField Class
 # Created by Jon Francis
@@ -50,7 +55,7 @@ class PolyField(Field):
         self.poly = poly
 
     def addPoint(self, x, y):
-	   self.poly.append(Point(x, y))
+	self.poly.append(Point(x, y))
 
     def getCenter(self):
         count = x = y = 0
@@ -81,24 +86,27 @@ class PolyField(Field):
 
     def inCircle(self, point):
         if self.getDistanceFromCenter(point) < self.getCircleRadius():
-            return true
+            return True
         else:
-            return false
+            return False
 
     def inBound(self, point, dist):
         if self.inCircle(point):
-            return false
+            return False
         elif self.getDistanceFromCenter(point) < self.getCircleRadius() + dist:
-            return true
+            return True
         else:
-            return false
+            return False
+
+    def __str__(self):
+	return "center=" + str(self.getCenter())
 
 
 # AttractiveField Class
 # Created by Jon Francis
 class AttractiveField(PolyField):
 
-    def __init__(self, id, alpha, bound):
+    def __init__(self, id, alpha, bound, poly):
         PolyField.__init__(self, id, poly)
         self.alpha = alpha
         self.bound = bound
@@ -124,8 +132,8 @@ class Controller:
         if not self.stop:
             twist = Twist()
             # Change twist.linear.x to be your desired x velocity
-    	    #velocity = self.getVelocity(msg)
-    	    print polyPoints
+    	    velocity = self.getVelocity(msg)
+	    print velocity
             twist.linear.x = 0
             # Change twist.linear.y to be your desired y velocity
             twist.linear.y = 0
@@ -137,8 +145,7 @@ class Controller:
 
     def getVelocity(self, msg):
 	spheroPoint = Point(msg.x, msg.y)
-	goal = AttractiveField(0, 80, 0)
-	vector = goal.getVect(spheroPoint)
+	vector = self.polyFields[0].getVect(spheroPoint)
 	return vector.getPoint()
 
     def start(self):
@@ -147,15 +154,19 @@ class Controller:
             info_query = rospy.ServiceProxy("apriltags_info", apriltags_info)
             resp = info_query()
 
+	    self.polyFields = []
             for i in range(len(resp.polygons)):
                 # A polygon (access points using poly.points)
                 poly = resp.polygons[i]
+
                 # The polygon's id (just an integer, 0 is goal, all else is bad)
                 t_id = resp.ids[i]
-        		field = PolyField(t_id)
-        		for point in poly.points:
-        		    field.addPoint(point.x, point.y)
-        		self.polyFields.append(field)
+
+		polyPoints = []
+        	for point in poly.points:
+        	    polyPoints.append(Point(point.x, point.y))
+
+        	self.polyFields.append(AttractiveField(t_id, 80, 0, polyPoints))
 
         except Exception, e:
             print "Exception: " + str(e)
