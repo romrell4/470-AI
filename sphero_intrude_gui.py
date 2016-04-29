@@ -46,12 +46,11 @@ class Field:
 class PolyField(Field):
 
     def __init__(self, id, poly):
-        #super(self.__class__, self).__init__(id)
-	Field.__init__(self, id)
+    	Field.__init__(self, id)
         self.poly = poly
 
     def addPoint(self, x, y):
-	self.poly.append(Point(x, y))
+	   self.poly.append(Point(x, y))
 
     def getCenter(self):
         count = x = y = 0
@@ -100,10 +99,7 @@ class PolyField(Field):
 class AttractiveField(PolyField):
 
     def __init__(self, id, alpha, bound):
-        #super(self.__class__, self).__init__(id)
-	poly
-
-	PolyField.__init__(self, id, poly)
+        PolyField.__init__(self, id, poly)
         self.alpha = alpha
         self.bound = bound
 
@@ -128,8 +124,8 @@ class Controller:
         if not self.stop:
             twist = Twist()
             # Change twist.linear.x to be your desired x velocity
-	    #velocity = self.getVelocity(msg)
-	    print polyPoints
+    	    #velocity = self.getVelocity(msg)
+    	    print polyPoints
             twist.linear.x = 0
             # Change twist.linear.y to be your desired y velocity
             twist.linear.y = 0
@@ -156,10 +152,10 @@ class Controller:
                 poly = resp.polygons[i]
                 # The polygon's id (just an integer, 0 is goal, all else is bad)
                 t_id = resp.ids[i]
-		field = PolyField(t_id)
-		for point in poly.points:
-		    field.addPoint(point.x, point.y)
-		self.polyFields.append(field)
+        		field = PolyField(t_id)
+        		for point in poly.points:
+        		    field.addPoint(point.x, point.y)
+        		self.polyFields.append(field)
 
         except Exception, e:
             print "Exception: " + str(e)
