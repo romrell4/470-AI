@@ -248,7 +248,7 @@ class Controller:
         	    polyPoints.append(Point(point.x, point.y))
 
 		if t_id == 0:
-		    self.polyFields.append(AttractiveField(t_id, 100, 300, polyPoints))
+		    self.polyFields.append(AttractiveField(t_id, 80, 300, polyPoints))
 		elif t_id == 3:
 		    self.polyFields.append(TangentialField(t_id, 50, 200, polyPoints))
 		else:
