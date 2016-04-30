@@ -28,8 +28,16 @@ class Vector:
         self.magnitude = magnitude
 
     def getPoint(self):
-	x = self.magnitude * math.acos(self.direction)
-	y = self.magnitude * math.asin(self.direction)
+	if self.direction > math.pi/2:
+	    x = -self.magnitude * math.cos(math.pi - self.direction)
+	    y = self.magnitude * math.sin(math.pi - self.direction)
+	elif self.direction < -math.pi/2:
+	    x = -self.magnitude * math.cos(self.direction + math.pi)
+	    y = -self.magnitude * math.sin(self.direction + math.pi)
+	else:
+	    x = self.magnitude * math.cos(self.direction)
+	    y = self.magnitude * math.sin(self.direction)
+	
 	return Point(x, y)
 
 # Field Class
@@ -75,14 +83,29 @@ class PolyField(Field):
         y *= y
         return math.sqrt(x + y)
 
+    def getAngle(self, point):
+	c = self.getCenter()
+	x = c.x - point.x
+	y = point.y - c.y
+	return (x, y)
+
     def getAngleToCenter(self, point):
-        c = self.getCenter()
-        x = c.x - point.x
-        y = c.y - point.y
-        return math.atan2(y, x)
+        (x, y) = self.getAngle(point)
+	return math.atan2(y, x)
+
+    def getAngleFromCenter(self, point):
+	(x, y) = self.getAngle(point)
+	return math.atan2(-y, -x)
+
+    def getAngleTangentToCenter(self, point):
+	(x, y) = self.getAngle(point)
+	return math.atan2(y, x) + math.pi/2
 
     def getCircleRadius(self):
-        return self.getDistanceFromCenter(self.poly[0])
+	x = (self.poly[0].x + self.poly[1].x) / 2
+	y = (self.poly[0].y + self.poly[1].y) / 2
+	point = Point(x, y)
+        return self.getDistanceFromCenter(point)
 
     def inCircle(self, point):
         if self.getDistanceFromCenter(point) < self.getCircleRadius():
@@ -91,9 +114,7 @@ class PolyField(Field):
             return False
 
     def inBound(self, point, dist):
-        if self.inCircle(point):
-            return False
-        elif self.getDistanceFromCenter(point) < self.getCircleRadius() + dist:
+        if self.getDistanceFromCenter(point) < self.getCircleRadius() + dist:
             return True
         else:
             return False
@@ -114,10 +135,63 @@ class AttractiveField(PolyField):
     def getVect(self, point):
         if self.inCircle(point):
             return Vector(0, 0)
-        #elif self.inBound(point, bound):
-        #    return Vector(self.getAngleToCenter(point), self
+        elif self.inBound(point, self.bound):
+	    velocity = self.alpha * ((self.getDistanceFromCenter(point) - self.getCircleRadius()) / self.bound)
+            return Vector(self.getAngleToCenter(point), velocity)
 	else:
-	    return Vector(0, self.alpha)
+	    return Vector(self.getAngleToCenter(point), self.alpha)
+
+class CreativeField(PolyField):
+
+    def __init__(self, id, alpha, bound, poly):
+	PolyField.__init__(self, id, poly)
+	self.alpha = alpha
+	self.bound = bound
+
+    def getVect(self, point):
+	if self.inCircle(point):
+	    return Vector(self.getAngleFromCenter(point), self.alpha)
+	elif self.inBound(point, self.bound):
+	    velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
+            return Vector(self.getAngleToCenter(point), velocity)
+	else:
+	    return Vector(0, 0)
+
+class RepulsiveField(PolyField):
+
+    def __init__(self, id, alpha, bound, poly):
+	PolyField.__init__(self, id, poly)
+	self.alpha = alpha
+	self.bound = bound
+
+    def getVect(self, point):
+	if self.inCircle(point):
+	    return Vector(self.getAngleFromCenter(point), self.alpha)
+	elif self.inBound(point, self.bound):
+	    velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
+            return Vector(self.getAngleFromCenter(point), velocity)
+	else:
+	    return Vector(0, 0)
+
+class TangentialField(PolyField):
+
+    def __init__(self, id, alpha, bound, poly):
+	PolyField.__init__(self, id, poly)
+	self.alpha = alpha
+	self.bound = bound
+
+    def getVect(self, point):
+	if self.inCircle(point):
+	    return Vector(self.getAngleFromCenter(point), self.alpha)
+	elif self.inBound(point, self.bound):
+	    return Vector(self.getAngleTangentToCenter(point), self.alpha)
+	else:
+	    return Vector(self.getAngleToCenter(point), self.alpha)
+
+
+
+
+
 
 # You implement this class
 class Controller:
@@ -133,10 +207,9 @@ class Controller:
             twist = Twist()
             # Change twist.linear.x to be your desired x velocity
     	    velocity = self.getVelocity(msg)
-	    print velocity
-            twist.linear.x = 0
+            twist.linear.x = velocity.x
             # Change twist.linear.y to be your desired y velocity
-            twist.linear.y = 0
+            twist.linear.y = velocity.y
             twist.linear.z = 0
             twist.angular.x = 0
             twist.angular.y = 0
@@ -144,9 +217,17 @@ class Controller:
             self.cmdVelPub.publish(twist)
 
     def getVelocity(self, msg):
+	#Get the location of the sphero
 	spheroPoint = Point(msg.x, msg.y)
-	vector = self.polyFields[0].getVect(spheroPoint)
-	return vector.getPoint()
+	#Get the vector towards the goal.
+	x = y = 0
+	for polyField in self.polyFields:
+	    tmpPoint = polyField.getVect(spheroPoint).getPoint()
+	    print "vector" + str(polyField.id) + "=" + str(tmpPoint)
+	    x += tmpPoint.x
+	    y += tmpPoint.y
+	point = Point(x, y)
+	return point
 
     def start(self):
         rospy.wait_for_service("apriltags_info")
@@ -166,7 +247,12 @@ class Controller:
         	for point in poly.points:
         	    polyPoints.append(Point(point.x, point.y))
 
-        	self.polyFields.append(AttractiveField(t_id, 80, 0, polyPoints))
+		if t_id == 0:
+		    self.polyFields.append(AttractiveField(t_id, 100, 300, polyPoints))
+		elif t_id == 3:
+		    self.polyFields.append(TangentialField(t_id, 50, 200, polyPoints))
+		else:
+		    self.polyFields.append(RepulsiveField(t_id, 80, 250, polyPoints))	
 
         except Exception, e:
             print "Exception: " + str(e)
