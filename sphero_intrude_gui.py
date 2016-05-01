@@ -185,7 +185,8 @@ class TangentialField(PolyField):
         if self.inCircle(point):
             return Vector(self.getAngleFromCenter(point), self.repulse)
         elif self.inBound(point, self.bound):
-            return Vector(self.getAngleTangentToCenter(point, self.clockwise), self.alpha)
+            velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
+            return Vector(self.getAngleTangentToCenter(point, self.clockwise), velocity)
         else:
             return Vector(self.getAngleToCenter(point), self.attract)
 
