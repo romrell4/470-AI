@@ -95,7 +95,10 @@ class PolyField(Field):
 
     def getAngleTangentToCenter(self, point, clockwise):
         (x, y) = self.getAngle(point)
-        return math.atan2(y, x) + math.pi/2 if clockwise else -math.pi/2
+        if clockwise:
+            return math.atan2(y, x) + math.pi/2 
+        else: 
+            return math.atan2(y, x) - math.pi/2
 
     def getCircleRadius(self):
         x = (self.poly[0].x + self.poly[1].x) / 2
@@ -174,7 +177,7 @@ class CreativeField(PolyField):
 class TangentialField(PolyField):
 
     def __init__(self, id, attract, repulse, alpha, clockwise, bound, poly):
-        PolyField.__init__(self, id, poly)]
+        PolyField.__init__(self, id, poly)
         self.attract = attract
         self.repulse = repulse
         self.alpha = alpha
@@ -185,7 +188,7 @@ class TangentialField(PolyField):
         if self.inCircle(point):
             return Vector(self.getAngleFromCenter(point), self.repulse)
         elif self.inBound(point, self.bound):
-            velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
+            velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound) + 10
             return Vector(self.getAngleTangentToCenter(point, self.clockwise), velocity)
         else:
             return Vector(self.getAngleToCenter(point), self.attract)
@@ -274,6 +277,8 @@ class Controller:
         #Get the vector towards the goal.
         x = y = 0
         for field in self.fields:
+            if type(field) is AttractiveField and field.inCircle(spheroPoint):
+                return Point(0, 0)
             tmpPoint = field.getVect(spheroPoint).getPoint()
             print "vector" + str(field.id) + "=" + str(tmpPoint)
             x += tmpPoint.x
@@ -300,15 +305,17 @@ class Controller:
                     polyPoints.append(Point(point.x, point.y))
 
                 if t_id == 0:
-                    self.fields.append(AttractiveField(t_id, 80, 300, polyPoints))
+                    self.fields.append(AttractiveField(t_id, 100, 300, polyPoints))
+                #elif t_id == 2:
+                    #self.fields.append(TangentialField(t_id, 40, 60, 40, True, 150, polyPoints))
                 elif t_id == 3:
-                    self.fields.append(TangentialField(t_id, 50, 50, 50, True, 200, polyPoints))
+                    self.fields.append(TangentialField(t_id, 40, 60, 40, False, 150, polyPoints))
                 else:
-                    self.fields.append(RepulsiveField(t_id, 80, 250, polyPoints))
-                    self.fields.append(TangentialField(t_id, 0, 0, 50, False, 250, polyPoints))
+                    self.fields.append(RepulsiveField(t_id, 50, 300, polyPoints))
+                    #self.fields.append(TangentialField(t_id, 0, 0, 20, False, 150, polyPoints))
                         
-            self.fields.append(RandomField(4, 10))
-            self.fields.append(BoxCanyonField(5, 80, 100, 0, 0, 600, 480))
+            #self.fields.append(RandomField(4, 10))
+            #self.fields.append(BoxCanyonField(5, 80, 100, 0, 0, 785, 575))
 
         except Exception, e:
             print "Exception: " + str(e)
