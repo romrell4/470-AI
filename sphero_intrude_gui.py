@@ -186,12 +186,16 @@ class TangentialField(PolyField):
 
     def getVect(self, point):
         if self.inCircle(point):
-            return Vector(self.getAngleFromCenter(point), self.repulse)
+            velocity = self.repulse * (self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound
+            return Vector(self.getAngleFromCenter(point), velocity)
         elif self.inBound(point, self.bound):
             velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound) + 10
-            return Vector(self.getAngleTangentToCenter(point, self.clockwise), velocity)
+            return Vector(self.getAngleTangentToCenter(point, self.clockwise), self.alpha)
+        elif self.inBound(point, self.bound * 2):
+            velocity = self.attract * ((self.bound * 2 + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
+            return Vector(self.getAngleToCenter(point), velocity)
         else:
-            return Vector(self.getAngleToCenter(point), self.attract)
+            return Vector(0, 0)
 
 # RandomField Class
 class RandomField(Field):
@@ -276,6 +280,7 @@ class Controller:
         spheroPoint = Point(msg.x, msg.y)
         #Get the vector towards the goal.
         x = y = 0
+        print "fields: " + str(self.fields)
         for field in self.fields:
             if type(field) is AttractiveField and field.inCircle(spheroPoint):
                 return Point(0, 0)
@@ -284,6 +289,7 @@ class Controller:
             x += tmpPoint.x
             y += tmpPoint.y
         point = Point(x, y)
+        #print "velocity= " + str(point)
         return point
 
     def start(self):
@@ -306,16 +312,16 @@ class Controller:
 
                 if t_id == 0:
                     self.fields.append(AttractiveField(t_id, 100, 300, polyPoints))
-                #elif t_id == 2:
-                    #self.fields.append(TangentialField(t_id, 40, 60, 40, True, 150, polyPoints))
+                elif t_id == 2:
+                    self.fields.append(TangentialField(t_id, 40, 40, 50, True, 100, polyPoints))
                 elif t_id == 3:
-                    self.fields.append(TangentialField(t_id, 40, 60, 40, False, 150, polyPoints))
+                    self.fields.append(TangentialField(t_id, 40, 40, 50, False, 100, polyPoints))
                 else:
                     self.fields.append(RepulsiveField(t_id, 50, 300, polyPoints))
                     #self.fields.append(TangentialField(t_id, 0, 0, 20, False, 150, polyPoints))
                         
-            #self.fields.append(RandomField(4, 10))
-            #self.fields.append(BoxCanyonField(5, 80, 100, 0, 0, 785, 575))
+            #self.fields.append(RandomField(4, 40))
+            self.fields.append(BoxCanyonField(5, 50, 100, 0, 0, 785, 575))
 
         except Exception, e:
             print "Exception: " + str(e)
