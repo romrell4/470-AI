@@ -4,6 +4,11 @@ import math
 SIZE_OF_GRID = 100
 # SIZE_OF_GRID = 10
 
+class Cost:
+    def __init__(self, f, g):
+        self.f = f
+        self.g = g
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -65,4 +70,3 @@ def createGridMap(allPoints):
 
 
 runFullAlgorithm()
-
