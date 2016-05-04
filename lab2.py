@@ -45,6 +45,13 @@ class Point:
 
     def addAccessiblePoint(self, point):
     	self.accessiblePoints.append(point)
+    
+    def distanceTo(self, point):
+        distX = self.x - point.x
+        distY = self.y - point.y
+        distX *= distX
+        distY *= distY
+        return math.sqrt(distX + distY)
 
     def fullString(self):
     	result = str(self) + " -> "
