@@ -5,13 +5,13 @@ SIZE_OF_GRID = 100
 # SIZE_OF_GRID = 10
 
 class Node:
-    def __init__(self, point, cost, path)
+    def __init__(self, point, cost, path):
         self.point = point
         self.cost = cost
         self.path = path
 
 class Queue:
-    def __init(self):
+    def __init__(self):
         self.q = []
 
     def add(self, node):
