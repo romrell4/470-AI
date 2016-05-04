@@ -10,6 +10,23 @@ class Node:
         self.cost = cost
         self.path = path
 
+    def pathToString(self):
+        result = "["
+        first = True
+        for point in path:
+            if first:
+                first = False
+                result += str(point)
+            else:
+                result += ", "+str(point)
+
+        result += "]"
+        return result
+
+    def toString(self):
+        print "[point: "+str(self.point)+", cost: "+str(self.cost)+", path: "+str(self.path)+"]"
+
+
 class Queue:
     def __init__(self):
         self.q = []
@@ -30,12 +47,17 @@ class Cost:
     def __init__(self, f, g):
         self.f = f
         self.g = g
+    def toString(self):
+        print "[f: "+self.f+", g: "+self.g+"]"
 
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.accessiblePoints = []
+
+    def toString(self):
+        print "("+self.x+","+self.y+")"
 
     def inAprilTag(self):
     	return False
@@ -120,5 +142,5 @@ def testAStar():
     points.append(Point(40,20))
     points.append(Point(40,30))
     points.append(Point(50,20))
-    
+
     doAStar(createGridMap(points))
