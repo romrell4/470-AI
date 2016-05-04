@@ -32,8 +32,10 @@ def runFullAlgorithm():
 	points = discretizeArea()
 	for point in points:
 		print point.fullString()
-	doA-Star()
+	doAStar()
 
+def doAStar():
+	print "Doing A*"
 
 def discretizeArea():
 	return createGridMap(getGridCenters(getLowerRightPoint()))
