@@ -28,11 +28,15 @@ class Point:
     def __str__(self):
     	return "(" + str(self.x) + ", " + str(self.y) + ")"
 
+def runFullAlgorithm():
+	points = discretizeArea()
+	for point in points:
+		print point.fullString()
+	doA-Star()
+
+
 def discretizeArea():
-	lowerRightPoint = getLowerRightPoint()
-	points = getGridCenters(lowerRightPoint)
-	createGridMap(points)
-	return points
+	return createGridMap(getGridCenters(getLowerRightPoint()))
 
 def getLowerRightPoint():
 	#TODO: Fill in logic
@@ -55,9 +59,8 @@ def createGridMap(allPoints):
 		for otherPoint in allPoints:
 			if point.isAccessible(otherPoint):
 				point.addAccessiblePoint(otherPoint)
+	return allPoints
 
 
-points = discretizeArea()
-for point in points:
-	print point.fullString()
+runFullAlgorithm()
 
