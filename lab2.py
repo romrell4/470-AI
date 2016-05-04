@@ -1,7 +1,7 @@
 #!/bin/bash
 import math
 
-SIZE_OF_GRID = 100
+SIZE_OF_GRID = 10
 # SIZE_OF_GRID = 10
 
 class Node:
@@ -10,10 +10,13 @@ class Node:
         self.cost = cost
         self.path = path
 
+    def hasPointInPath(self, point):
+    	return point in self.path
+
     def pathToString(self):
         result = "["
         first = True
-        for point in path:
+        for point in self.path:
             if first:
                 first = False
                 result += str(point)
@@ -23,9 +26,8 @@ class Node:
         result += "]"
         return result
 
-    def toString(self):
-        print "[point: "+str(self.point)+", cost: "+str(self.cost)+", path: "+str(self.path)+"]"
-
+    def __str__(self):
+        return "[point: "+str(self.point)+", cost: "+str(self.cost)+", path: " + self.pathToString() + "]"
 
 class Queue:
     def __init__(self):
@@ -34,30 +36,35 @@ class Queue:
     def add(self, node):
         inList = False
         for index in range(len(self.q)):
-            if node.cost.f < q[index].cost.f:
-                q.insert(index, node)
+            if node.cost.f < self.q[index].cost.f:
+                self.q.insert(index, node)
                 inList = True
+                break
         if not inList:
-            q.append(node)
+            self.q.append(node)
 
     def pop(self):
-        return q.pop(0)
+        return self.q.pop(0)
+
+    def __str__(self):
+    	result = ""
+    	for element in self.q:
+    		result += "\n" + str(element.point) + " f=" + str(element.cost.f) + " path=" + str(element.pathToString())
+    	return result
 
 class Cost:
     def __init__(self, f, g):
         self.f = f
         self.g = g
-    def toString(self):
-        print "[f: "+self.f+", g: "+self.g+"]"
+
+    def __str__(self):
+        return "[f: " + str(self.f) + ", g: " + str(self.g) + "]"
 
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.accessiblePoints = []
-
-    def toString(self):
-        print "("+self.x+","+self.y+")"
 
     def inAprilTag(self):
     	return False
@@ -86,12 +93,63 @@ class Point:
 
 def runFullAlgorithm():
 	points = discretizeArea()
-	for point in points:
-		print point.fullString()
-	doAStar()
+	doAStar(points)
 
-def doAStar():
-	print "Doing A*"
+def doAStar(allPoints):
+	#Create queue with only root node
+	goalPoint = getGoal(allPoints)
+	q = Queue()
+	q.add(getRoot(allPoints, goalPoint))
+
+	bestSoFar = float("inf")
+	bestNode = None
+	epochs = 0
+	while(True):
+		epochs+=1
+		#print "Queue=" + str(q)
+		parent = q.pop()
+		#print "\nStarting loop with parent: " + str(parent)
+		if (parent == None or parent.cost.f > bestSoFar):
+			print "Either exhausted queue or best was found"
+			break
+
+		for child in parent.point.accessiblePoints:
+			if parent.hasPointInPath(child):
+				#print "Skipping child " + str(child)
+				continue
+
+			#print "Calculating child " + str(child)
+			g = parent.cost.g + parent.point.distanceTo(child)
+			h = child.distanceTo(goalPoint)
+			#print "G=" + str(g) + ". H=" + str(h) + ". F=" + str(g+h)
+
+			cost = Cost(g + h, g)
+			node = Node(child, cost, parent.path + [parent.point])
+			#print "Adding new node " + str(node)
+			q.add(node)
+
+			if (h == 0):
+				print "We reached the end!"
+				if (bestSoFar > g):
+					print "Best so far getting updated from " + str(bestSoFar) + " to " + str(g)
+					bestSoFar = g
+					bestNode = node
+					print "Best node is " + str(bestNode)
+
+		#if epochs == 4:
+		#	break
+
+	if bestNode == None:
+		return None
+	return bestNode.path + [goalPoint]
+
+def getRoot(allPoints, goalPoint):
+	#TODO: Calculate closest point to Sphero
+	point = allPoints[0]
+	return Node(point, Cost(point.distanceTo(goalPoint), 0), [])
+
+def getGoal(allPoints):
+	return allPoints[1]
 
 def discretizeArea():
 	return createGridMap(getGridCenters(getLowerRightPoint()))
@@ -121,7 +179,7 @@ def createGridMap(allPoints):
 
 
 #runFullAlgorithm()
-def testAStar():
+def testAStar1():
     points = []
     points.append(Point(0,0))
     points.append(Point(0,50))
@@ -143,4 +201,35 @@ def testAStar():
     points.append(Point(40,30))
     points.append(Point(50,20))
 
-    doAStar(createGridMap(points))
+    path = doAStar(createGridMap(points))
+    for point in path:
+    	print point
+
+
+def testAStar2():
+	points = []
+	points.append(Point(0,0))
+	points.append(Point(10,50))
+	points.append(Point(0,40))
+	points.append(Point(10,0))
+	points.append(Point(10,10))
+	points.append(Point(10,30))
+	points.append(Point(20,0))
+	points.append(Point(20,30))
+	#points.append(Point(20,50))
+	points.append(Point(30,0))
+	points.append(Point(30,10))
+	points.append(Point(30,20))
+	points.append(Point(30,30))
+	points.append(Point(30,40))
+	points.append(Point(30,50))
+	points.append(Point(40,10))
+	points.append(Point(40,20))
+	points.append(Point(40,30))
+	points.append(Point(50,20))
+	
+	path = doAStar(createGridMap(points))
+	for point in path:
+		print point
+
+testAStar2()
