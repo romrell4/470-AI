@@ -4,6 +4,28 @@ import math
 SIZE_OF_GRID = 100
 # SIZE_OF_GRID = 10
 
+class Node:
+    def __init__(self, point, cost, path)
+        self.point = point
+        self.cost = cost
+        self.path = path
+
+class Queue:
+    def __init(self):
+        self.q = []
+
+    def add(self, node):
+        inList = False
+        for index in range(len(self.q)):
+            if node.cost.f < q[index].cost.f:
+                q.insert(index, node)
+                inList = True
+        if not inList:
+            q.append(node)
+
+    def pop(self):
+        return q.pop(0)
+
 class Cost:
     def __init__(self, f, g):
         self.f = f
