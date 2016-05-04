@@ -1,23 +1,38 @@
 #!/bin/bash
+import math
 
 SIZE_OF_GRID = 100
+# SIZE_OF_GRID = 10
 
 class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+        self.accessiblePoints = []
 
     def inAprilTag(self):
     	return False
+
+    def isAccessible(self, point):
+    	return self != point and abs(self.x - point.x) <= SIZE_OF_GRID and abs(self.y - point.y) <= SIZE_OF_GRID
+
+    def addAccessiblePoint(self, point):
+    	self.accessiblePoints.append(point)
+
+    def fullString(self):
+    	result = str(self) + " -> "
+    	for accessiblePoint in self.accessiblePoints:
+    		result += str(accessiblePoint) + ", "
+    	return result
 
     def __str__(self):
     	return "(" + str(self.x) + ", " + str(self.y) + ")"
 
 def discretizeArea():
 	lowerRightPoint = getLowerRightPoint()
-	gridCenters = getGridCenters(lowerRightPoint)
-	for gridCenter in gridCenters:
-		print gridCenter
+	points = getGridCenters(lowerRightPoint)
+	createGridMap(points)
+	return points
 
 def getLowerRightPoint():
 	#TODO: Fill in logic
@@ -30,7 +45,19 @@ def getGridCenters(maxPoint):
 			point = Point(x, y)
 			if not point.inAprilTag():
 				gridCenters.append(point)
+
+	# gridCenters = []
+	# gridCenters = [Point(0, 0), Point(0, 10), Point(0, 20), Point(10, 0), Point(10, 10), Point(10, 20), Point(20, 0), Point(20, 10), Point(20, 20)]
 	return gridCenters
 
-discretizeArea()
+def createGridMap(allPoints):
+	for point in allPoints:
+		for otherPoint in allPoints:
+			if point.isAccessible(otherPoint):
+				point.addAccessiblePoint(otherPoint)
+
+
+points = discretizeArea()
+for point in points:
+	print point.fullString()
 
