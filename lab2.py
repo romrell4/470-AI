@@ -8,16 +8,16 @@ class Point:
         self.y = y
 
     def inAprilTag(self):
-    	#TODO: Fill in logic
     	return False
 
-	def __str__(self):
-		return "(" + str(self.x) + ", " + str(self.y) + ")"
+    def __str__(self):
+    	return "(" + str(self.x) + ", " + str(self.y) + ")"
 
 def discretizeArea():
 	lowerRightPoint = getLowerRightPoint()
 	gridCenters = getGridCenters(lowerRightPoint)
-	getGridMap(gridCenters)
+	for gridCenter in gridCenters:
+		print gridCenter
 
 def getLowerRightPoint():
 	#TODO: Fill in logic
@@ -28,12 +28,9 @@ def getGridCenters(maxPoint):
 	for x in range(SIZE_OF_GRID/2, maxPoint.x, SIZE_OF_GRID):
 		for y in range(SIZE_OF_GRID/2, maxPoint.y, SIZE_OF_GRID):
 			point = Point(x, y)
-			if !point.inAprilTag():
+			if not point.inAprilTag():
 				gridCenters.append(point)
 	return gridCenters
-
-def getGridMap(gridCenters):
-
 
 discretizeArea()
 
