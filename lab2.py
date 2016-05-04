@@ -45,7 +45,7 @@ class Point:
 
     def addAccessiblePoint(self, point):
     	self.accessiblePoints.append(point)
-    
+
     def distanceTo(self, point):
         distX = self.x - point.x
         distY = self.y - point.y
@@ -98,4 +98,27 @@ def createGridMap(allPoints):
 	return allPoints
 
 
-runFullAlgorithm()
+#runFullAlgorithm()
+def testAStar():
+    points = []
+    points.append(Point(0,0))
+    points.append(Point(0,50))
+    points.append(Point(10,0))
+    points.append(Point(10,10))
+    points.append(Point(10,30))
+    points.append(Point(10,50))
+    points.append(Point(20,0))
+    points.append(Point(20,30))
+    points.append(Point(20,50))
+    points.append(Point(30,0))
+    points.append(Point(30,10))
+    points.append(Point(30,20))
+    points.append(Point(30,30))
+    points.append(Point(30,40))
+    points.append(Point(30,50))
+    points.append(Point(40,10))
+    points.append(Point(40,20))
+    points.append(Point(40,30))
+    points.append(Point(50,20))
+    
+    doAStar(createGridMap(points))
