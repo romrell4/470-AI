@@ -247,39 +247,31 @@ class RRT:
         #Build a rapidly exploring random tree
         while(True):
             randPoint = self.getRandPoint()
-            nearStart = self.getNearPoints(randPoint, startTree)
-            newPoint = None
-            for index in range(len(nearStart)):
-                newPoint = self.getNewPoint(randPoint, nearStart[index])
-                if newPoint != None:
-                    nearStart[index].addAccessiblePoint(newPoint)
-                    newPoint.addAccessiblePoint(nearStart[index])
-                    startTree.append(newPoint)
-                    break
-        
+            
+            nearPoint = self.getNearPoint(randPoint, startTree)
+            newPoint = self.getNewPoint(randPoint, nearPoint)
             if newPoint != None:
-                nearNew = self.getNearPoints(newPoint, endTree)[0]
-                if nearNew.distanceTo(newPoint) <= self.delta:
+                nearPoint.addAccessiblePoint(newPoint)
+                newPoint.addAccessiblePoint(nearPoint)
+                startTree.append(newPoint)
+                nearPoint = self.getNearPoint(newPoint, endTree)
+                if nearPoint.distanceTo(newPoint) <= self.delta:
                     #Link up the two trees and return
-                    nearNew.addAccessiblePoint(newPoint)
-                    newPoint.addAccessiblePoint(nearNew)
+                    nearPoint.addAccessiblePoint(newPoint)
+                    newPoint.addAccessiblePoint(nearPoint)
                     return startTree + endTree
 
-            nearEnd = self.getNearPoints(randPoint, endTree)
-            for index in range(len(nearEnd)):
-                newPoint = self.getNewPoint(randPoint, nearEnd[index])
-                if newPoint != None:
-                    nearEnd[index].addAccessiblePoint(newPoint)
-                    newPoint.addAccessiblePoint(nearEnd[index])
-                    endTree.append(newPoint)
-                    break
-
+            nearPoint = self.getNearPoint(randPoint, endTree)
+            newPoint = self.getNewPoint(randPoint, nearPoint)
             if newPoint != None:
-                nearNew = self.getNearPoints(newPoint, startTree)[0]
-                if nearNew.distanceTo(newPoint) <= self.delta:
+                nearPoint.addAccessiblePoint(newPoint)
+                newPoint.addAccessiblePoint(nearPoint)
+                endTree.append(newPoint)
+                nearPoint = self.getNearPoint(newPoint, startTree)
+                if nearPoint.distanceTo(newPoint) <= self.delta:
                     #Link up the two trees and return
-                    nearNew.addAccessiblePoint(newPoint)
-                    newPoint.addAccessiblePoint(nearNew)
+                    nearPoint.addAccessiblePoint(newPoint)
+                    newPoint.addAccessiblePoint(nearPoint)
                     return startTree + endTree
 
     def findPath(self):
@@ -290,8 +282,8 @@ class RRT:
     def getRandPoint(self):
         #Return a new random point within the boundaries of the world
 
-    def getNearPoints(self, randPoint, treeSoFar):
-        #Return a list of points in the tree sorted by their distance from the randPoint
+    def getNearPoint(self, randPoint, treeSoFar):
+        #Return the point in treeSoFar that is closest to randPoint
 
     def getNewPoint(self, randPoint, nearPoint):
         #Return a new point that is distance self.delta from the near point int the direction of randPoint
