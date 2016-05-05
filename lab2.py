@@ -236,54 +236,48 @@ class RRT:
         self.end = end
         self.delta = delta
         self.world = world
-        self.tree = self.build()
         self.path = self.findPath()
 
-    def build(self):
-        startTree = [self.start]
-        endTree = [self.end]
+    def findPath(self):
+        startTree = [Node(self.start, None, [self.start])]
+        endTree = [Node(self.end, None, [self.end])]
         #Build a rapidly exploring random tree
         while(True):
             randPoint = self.getRandPoint()
             
-            nearPoint = self.getNearPoint(randPoint, startTree)
-            newPoint = self.getNewPoint(randPoint, nearPoint)
+            nearNode = self.getNearNode(randPoint, startTree)
+            newPoint = self.getNewPoint(randPoint, nearNode.point)
             if newPoint != None:
-                nearPoint.addAccessiblePoint(newPoint)
-                newPoint.addAccessiblePoint(nearPoint)
-                startTree.append(newPoint)
-                nearPoint = self.getNearPoint(newPoint, endTree)
-                if nearPoint.distanceTo(newPoint) <= self.delta:
-                    #Link up the two trees and return
-                    nearPoint.addAccessiblePoint(newPoint)
-                    newPoint.addAccessiblePoint(nearPoint)
-                    return startTree + endTree
+                nearNode.point.addAccessiblePoint(newPoint)
+                newPoint.addAccessiblePoint(nearNode.point)
+                startTree.append(Node(newPoint, None, nearNode.path + [newPoint]))
+                nearNode = self.getNearNode(newPoint, endTree)
+                if nearNode.point.distanceTo(newPoint) <= self.delta:
+                    #Link up the two tree paths and return
+                    nearNode.point.addAccessiblePoint(newPoint)
+                    newPoint.addAccessiblePoint(nearNode.point)
+                    return startTree.path + endTree.path.reverse
 
-            nearPoint = self.getNearPoint(randPoint, endTree)
-            newPoint = self.getNewPoint(randPoint, nearPoint)
+            nearNode = self.getNearNode(randPoint, endTree)
+            newPoint = self.getNewPoint(randPoint, nearNode.point)
             if newPoint != None:
-                nearPoint.addAccessiblePoint(newPoint)
-                newPoint.addAccessiblePoint(nearPoint)
-                endTree.append(newPoint)
-                nearPoint = self.getNearPoint(newPoint, startTree)
-                if nearPoint.distanceTo(newPoint) <= self.delta:
-                    #Link up the two trees and return
-                    nearPoint.addAccessiblePoint(newPoint)
-                    newPoint.addAccessiblePoint(nearPoint)
-                    return startTree + endTree
-
-    def findPath(self):
-        path = [self.start]
-        #Find the path from start to end
-        return path
+                nearNode.point.addAccessiblePoint(newPoint)
+                newPoint.addAccessiblePoint(nearNode.point)
+                endTree.append(Node(newPoint, None, nearNode.path + [newPoint]))
+                nearNode = self.getNearNode(newPoint, startTree)
+                if nearNode.distanceTo(newPoint) <= self.delta:
+                    #Link up the two tree paths and return
+                    nearNode.point.addAccessiblePoint(newPoint)
+                    newPoint.addAccessiblePoint(nearNode.point)
+                    return startTree.path + endTree.path.reverse
 
     def getRandPoint(self):
         #Return a new random point within the boundaries of the world
 
-    def getNearPoint(self, randPoint, treeSoFar):
+    def getNearNode(self, randPoint, treeSoFar):
         #Return the point in treeSoFar that is closest to randPoint
 
-    def getNewPoint(self, randPoint, nearPoint):
+    def getNewPoint(self, randPoint, nearNode):
         #Return a new point that is distance self.delta from the near point int the direction of randPoint
         #If this new point falls inside an apriltag, return None
 
