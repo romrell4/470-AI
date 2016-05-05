@@ -177,8 +177,6 @@ def createGridMap(allPoints):
 				point.addAccessiblePoint(otherPoint)
 	return allPoints
 
-
-#runFullAlgorithm()
 def testAStar1():
     points = []
     points.append(Point(0,0))
@@ -289,6 +287,7 @@ class RRT:
         #Return a new point that is distance self.delta from the near point int the direction of randPoint
         #If this new point falls inside an apriltag, return None
 
+#runFullAlgorithm()
 testAStar2()
 
 
