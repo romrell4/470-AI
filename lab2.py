@@ -226,7 +226,7 @@ def testAStar2():
 	points.append(Point(40,20))
 	points.append(Point(40,30))
 	points.append(Point(50,20))
-	
+
 	path = doAStar(createGridMap(points))
 	for point in path:
 		print point
@@ -237,7 +237,7 @@ class RRT:
         self.end = end
         self.delta = delta
         self.world = world
-        self.path = self.findPath()
+        #self.path = self.findPath()
 
     def findPath(self):
         startTree = [Node(self.start, None, [self.start])]
@@ -245,7 +245,7 @@ class RRT:
         #Build a rapidly exploring random tree
         while(True):
             randPoint = self.getRandPoint()
-            
+
             nearNode = self.getNearNode(randPoint, startTree)
             newPoint = self.getNewPoint(randPoint, nearNode.point)
             if newPoint != None:
@@ -280,15 +280,17 @@ class RRT:
         return Point(x, y)
 
     def getNearNode(self, randPoint, treeSoFar):
-        #Return the point in treeSoFar that is closest to randPoint
+        #Return the node in treeSoFar that is closest to randPoint
+        closest = float("inf")
+        for treeNode in treeSoFar:
+            if randPoint.distanceTo(treeNode.point) < closest:
+                closest = randPoint.distanceTo(treeNode.point)
+                bestNode = treeNode
+        return bestNode
 
-    def getNewPoint(self, randPoint, nearNode):
+    #def getNewPoint(self, randPoint, nearPoint):
         #Return a new point that is distance self.delta from the near point int the direction of randPoint
         #If this new point falls inside an apriltag, return None
 
 #runFullAlgorithm()
-testAStar2()
-
-
-
-
+#testAStar2()
