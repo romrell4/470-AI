@@ -5,6 +5,67 @@ import random
 SIZE_OF_GRID = 10
 # SIZE_OF_GRID = 10
 
+class Test:
+    def testAStar1(self):
+        points = []
+        points.append(Point(0,0))
+        points.append(Point(0,50))
+        points.append(Point(10,0))
+        points.append(Point(10,10))
+        points.append(Point(10,30))
+        points.append(Point(10,50))
+        points.append(Point(20,0))
+        points.append(Point(20,30))
+        points.append(Point(20,50))
+        points.append(Point(30,0))
+        points.append(Point(30,10))
+        points.append(Point(30,20))
+        points.append(Point(30,30))
+        points.append(Point(30,40))
+        points.append(Point(30,50))
+        points.append(Point(40,10))
+        points.append(Point(40,20))
+        points.append(Point(40,30))
+        points.append(Point(50,20))
+
+        path = doAStar(createGridMap(points))
+        for point in path:
+            print point
+
+    def testAStar2(self):
+        points = []
+        points.append(Point(0,0))
+        points.append(Point(10,50))
+        points.append(Point(0,40))
+        points.append(Point(10,0))
+        points.append(Point(10,10))
+        points.append(Point(10,30))
+        points.append(Point(20,0))
+        points.append(Point(20,30))
+        points.append(Point(20,50))
+        points.append(Point(30,0))
+        points.append(Point(30,10))
+        points.append(Point(30,20))
+        points.append(Point(30,30))
+        points.append(Point(30,40))
+        points.append(Point(30,50))
+        points.append(Point(40,10))
+        points.append(Point(40,20))
+        points.append(Point(40,30))
+        points.append(Point(50,20))
+        
+        path = doAStar(createGridMap(points))
+        for point in path:
+            print point
+
+    def testGetNewPoint(self):
+        rrt = RRT(None, None, 6, None)
+        nearPoint = Point(0, 0)
+        print rrt.getNewPoint(Point(10, 5), nearPoint)
+        print rrt.getNewPoint(Point(10, -5), nearPoint)
+        print rrt.getNewPoint(Point(-10, 5), nearPoint)
+        print rrt.getNewPoint(Point(-10, -5), nearPoint)
+
 class Node:
     def __init__(self, point, cost, path):
         self.point = point
@@ -178,66 +239,13 @@ def createGridMap(allPoints):
 				point.addAccessiblePoint(otherPoint)
 	return allPoints
 
-def testAStar1():
-    points = []
-    points.append(Point(0,0))
-    points.append(Point(0,50))
-    points.append(Point(10,0))
-    points.append(Point(10,10))
-    points.append(Point(10,30))
-    points.append(Point(10,50))
-    points.append(Point(20,0))
-    points.append(Point(20,30))
-    points.append(Point(20,50))
-    points.append(Point(30,0))
-    points.append(Point(30,10))
-    points.append(Point(30,20))
-    points.append(Point(30,30))
-    points.append(Point(30,40))
-    points.append(Point(30,50))
-    points.append(Point(40,10))
-    points.append(Point(40,20))
-    points.append(Point(40,30))
-    points.append(Point(50,20))
-
-    path = doAStar(createGridMap(points))
-    for point in path:
-    	print point
-
-
-def testAStar2():
-	points = []
-	points.append(Point(0,0))
-	points.append(Point(10,50))
-	points.append(Point(0,40))
-	points.append(Point(10,0))
-	points.append(Point(10,10))
-	points.append(Point(10,30))
-	points.append(Point(20,0))
-	points.append(Point(20,30))
-	points.append(Point(20,50))
-	points.append(Point(30,0))
-	points.append(Point(30,10))
-	points.append(Point(30,20))
-	points.append(Point(30,30))
-	points.append(Point(30,40))
-	points.append(Point(30,50))
-	points.append(Point(40,10))
-	points.append(Point(40,20))
-	points.append(Point(40,30))
-	points.append(Point(50,20))
-	
-	path = doAStar(createGridMap(points))
-	for point in path:
-		print point
-
 class RRT:
     def __init__(self, start, end, delta, world):
         self.start = start
         self.end = end
         self.delta = delta
         self.world = world
-        self.path = self.findPath()
+        # self.path = self.findPath()
 
     def findPath(self):
         startTree = [Node(self.start, None, [self.start])]
@@ -281,14 +289,17 @@ class RRT:
 
     def getNearNode(self, randPoint, treeSoFar):
         #Return the point in treeSoFar that is closest to randPoint
+        return None
+    
+    def getNewPoint(self, randPoint, nearPoint):
+        #Return a new point that is distance self.delta from the near point in the direction of randPoint
 
-    def getNewPoint(self, randPoint, nearNode):
-        #Return a new point that is distance self.delta from the near point int the direction of randPoint
-        #If this new point falls inside an apriltag, return None
+        #TODO: If this new point falls inside an apriltag, return None
+        atan = math.atan2(randPoint.y - nearPoint.y, randPoint.x - nearPoint.x)
+        x = self.delta * math.cos(atan)
+        y = self.delta * math.sin(atan)
+        return Point(x, y)
 
 #runFullAlgorithm()
-testAStar2()
-
-
-
-
+test = Test()
+test.testGetNewPoint()
