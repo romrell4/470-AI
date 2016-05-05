@@ -17,6 +17,19 @@ class Point:
     def __str__(self):
 	return "x=" + str(self.x) + ", y=" + str(self.y)
 
+    def intersectsVertically(self, point1, point2):
+        if self.x < point1.x and self.x < point2.x:
+            return False
+        if self.x > point1.x and self.x > point2.x:
+            return False
+        if point2.x - point1.x == 0:
+            return False
+        slope = (point2.y - point1.y) / (point2.x - point1.x)
+        tempy = (self.x - point1.x) * slope + point1.y
+        if tempy < self.y:
+            return False
+        else:
+            return True
 
 # Vector Class
 class Vector:
@@ -117,6 +130,19 @@ class PolyField(Field):
             return True
         else:
             return False
+
+    def inSquare(self, point):
+        intersections = 0
+        for index in range(len(poly)):
+            point1 = poly[index]
+            point2 = None
+            if (index + 1) in range(len(poly)):
+                point2 = poly[index + 1]
+            else:
+                point2 = poly[0]
+            if point.intersectsVertically(point1, point2):
+                intersections += 1
+        return intersections % 2 == 1
 
     def __str__(self):
         return "center=" + str(self.getCenter())
