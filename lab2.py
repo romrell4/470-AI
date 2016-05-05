@@ -216,7 +216,7 @@ def testAStar2():
 	points.append(Point(10,30))
 	points.append(Point(20,0))
 	points.append(Point(20,30))
-	#points.append(Point(20,50))
+	points.append(Point(20,50))
 	points.append(Point(30,0))
 	points.append(Point(30,10))
 	points.append(Point(30,20))
