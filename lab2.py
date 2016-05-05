@@ -245,7 +245,7 @@ class RRT:
         self.end = end
         self.delta = delta
         self.world = world
-        # self.path = self.findPath()
+        #self.path = self.findPath()
 
     def findPath(self):
         startTree = [Node(self.start, None, [self.start])]
@@ -253,7 +253,7 @@ class RRT:
         #Build a rapidly exploring random tree
         while(True):
             randPoint = self.getRandPoint()
-            
+
             nearNode = self.getNearNode(randPoint, startTree)
             newPoint = self.getNewPoint(randPoint, nearNode.point)
             if newPoint != None:
@@ -288,9 +288,14 @@ class RRT:
         return Point(x, y)
 
     def getNearNode(self, randPoint, treeSoFar):
-        #Return the point in treeSoFar that is closest to randPoint
-        return None
-    
+        #Return the node in treeSoFar that is closest to randPoint
+        closest = float("inf")
+        for treeNode in treeSoFar:
+            if randPoint.distanceTo(treeNode.point) < closest:
+                closest = randPoint.distanceTo(treeNode.point)
+                bestNode = treeNode
+        return bestNode
+
     def getNewPoint(self, randPoint, nearPoint):
         #Return a new point that is distance self.delta from the near point in the direction of randPoint
 
@@ -301,5 +306,7 @@ class RRT:
         return Point(x, y)
 
 #runFullAlgorithm()
+#testAStar2()
+
 test = Test()
 test.testGetNewPoint()
