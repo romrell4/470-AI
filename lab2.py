@@ -1,5 +1,6 @@
 #!/bin/bash
 import math
+import random
 
 SIZE_OF_GRID = 10
 # SIZE_OF_GRID = 10
@@ -273,6 +274,10 @@ class RRT:
 
     def getRandPoint(self):
         #Return a new random point within the boundaries of the world
+        bounds = getLowerRightPoint();
+        x = random.random() * bounds.x;
+        y = random.random() * bounds.y;
+        return Point(x, y)
 
     def getNearNode(self, randPoint, treeSoFar):
         #Return the point in treeSoFar that is closest to randPoint
