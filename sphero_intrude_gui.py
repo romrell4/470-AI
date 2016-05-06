@@ -1,282 +1,12 @@
 #!/usr/bin/python
 
-import sys, rospy, math, random
+import sys, rospy, math, World
 from PyQt4 import QtGui, QtCore
 from geometry_msgs.msg import Twist, Pose2D
 from std_msgs.msg import ColorRGBA, Float32, Bool
 from apriltags_intrude_detector.srv import apriltags_intrude
 from apriltags_intrude_detector.srv import apriltags_info
 
-# Point Class
-class Point:
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __str__(self):
-	return "x=" + str(self.x) + ", y=" + str(self.y)
-
-    def intersectsVertically(self, point1, point2):
-        if self.x < point1.x and self.x < point2.x:
-            return False
-        if self.x > point1.x and self.x > point2.x:
-            return False
-        if point2.x - point1.x == 0:
-            return False
-        slope = (point2.y - point1.y) / (point2.x - point1.x)
-        tempy = (self.x - point1.x) * slope + point1.y
-        if tempy < self.y:
-            return False
-        else:
-            return True
-
-# Vector Class
-class Vector:
-
-    def __init__(self, direction, magnitude):
-        self.direction = direction
-        self.magnitude = magnitude
-
-    def getPoint(self):
-        if self.direction > math.pi/2:
-            x = -self.magnitude * math.cos(math.pi - self.direction)
-            y = self.magnitude * math.sin(math.pi - self.direction)
-        elif self.direction < -math.pi/2:
-            x = -self.magnitude * math.cos(self.direction + math.pi)
-            y = -self.magnitude * math.sin(self.direction + math.pi)
-        else:
-            x = self.magnitude * math.cos(self.direction)
-            y = self.magnitude * math.sin(self.direction)
-	
-        return Point(x, y)
-
-# Field Class
-class Field:
-
-    def __init__(self, id):
-        self.id = id
-
-    def getVect(self, point):
-        raise NotImplementedError("Subclass must implement abstract method")
-
-    def __str__(self):
-        return "id=" + str(self.id)
-
-
-# PolyField Class
-class PolyField(Field):
-
-    def __init__(self, id, poly):
-    	Field.__init__(self, id)
-        self.poly = poly
-
-    def addPoint(self, x, y):
-        self.poly.append(Point(x, y))
-
-    def getCenter(self):
-        count = x = y = 0
-        for p in self.poly:
-            count += 1
-            x += int(p.x)
-            y += int(p.y)
-        x /= count
-        y /= count
-        return Point(x, y)
-
-    def getDistanceFromCenter(self, point):
-        c = self.getCenter()
-        x = c.x - point.x
-        y = c.y - point.y
-        x *= x
-        y *= y
-        return math.sqrt(x + y)
-
-    def getAngle(self, point):
-        c = self.getCenter()
-        x = c.x - point.x
-        y = point.y - c.y
-        return (x, y)
-
-    def getAngleToCenter(self, point):
-        (x, y) = self.getAngle(point)
-        return math.atan2(y, x)
-
-    def getAngleFromCenter(self, point):
-        (x, y) = self.getAngle(point)
-        return math.atan2(-y, -x)
-
-    def getAngleTangentToCenter(self, point, clockwise):
-        (x, y) = self.getAngle(point)
-        if clockwise:
-            return math.atan2(y, x) + math.pi/2 
-        else: 
-            return math.atan2(y, x) - math.pi/2
-
-    def getCircleRadius(self):
-        x = (self.poly[0].x + self.poly[1].x) / 2
-        y = (self.poly[0].y + self.poly[1].y) / 2
-        point = Point(x, y)
-        return self.getDistanceFromCenter(point)
-
-    def inCircle(self, point):
-        if self.getDistanceFromCenter(point) < self.getCircleRadius():
-            return True
-        else:
-            return False
-
-    def inBound(self, point, dist):
-        if self.getDistanceFromCenter(point) < self.getCircleRadius() + dist:
-            return True
-        else:
-            return False
-
-    def inSquare(self, point):
-        intersections = 0
-        for index in range(len(poly)):
-            point1 = poly[index]
-            point2 = None
-            if (index + 1) in range(len(poly)):
-                point2 = poly[index + 1]
-            else:
-                point2 = poly[0]
-            if point.intersectsVertically(point1, point2):
-                intersections += 1
-        return intersections % 2 == 1
-
-    def __str__(self):
-        return "center=" + str(self.getCenter())
-
-
-# AttractiveField Class
-class AttractiveField(PolyField):
-
-    def __init__(self, id, alpha, bound, poly):
-        PolyField.__init__(self, id, poly)
-        self.alpha = alpha
-        self.bound = bound
-
-    def getVect(self, point):
-        if self.inCircle(point):
-            return Vector(0, 0)
-        elif self.inBound(point, self.bound):
-            velocity = self.alpha * ((self.getDistanceFromCenter(point) - self.getCircleRadius()) / self.bound)
-            return Vector(self.getAngleToCenter(point), velocity)
-	else:
-	    return Vector(self.getAngleToCenter(point), self.alpha)
-
-# RepulsiveField Class
-class RepulsiveField(PolyField):
-
-    def __init__(self, id, alpha, bound, poly):
-        PolyField.__init__(self, id, poly)
-        self.alpha = alpha
-        self.bound = bound
-
-    def getVect(self, point):
-        if self.inCircle(point):
-            return Vector(self.getAngleFromCenter(point), self.alpha)
-        elif self.inBound(point, self.bound):
-            velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
-            return Vector(self.getAngleFromCenter(point), velocity)
-        else:
-            return Vector(0, 0)
-
-# CreativeField Class
-class CreativeField(PolyField):
-    
-    def __init__(self, id, alpha, bound, poly):
-        PolyField.__init__(self, id, poly)
-        self.alpha = alpha
-        self.bound = bound
-    
-    def getVect(self, point):
-        if self.inCircle(point):
-            return Vector(self.getAngleFromCenter(point), self.alpha)
-        elif self.inBound(point, self.bound):
-            velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
-            return Vector(self.getAngleToCenter(point), velocity)
-        else:
-            return Vector(0, 0)
-
-# TangentialField Class
-class TangentialField(PolyField):
-
-    def __init__(self, id, attract, repulse, alpha, clockwise, bound, poly):
-        PolyField.__init__(self, id, poly)
-        self.attract = attract
-        self.repulse = repulse
-        self.alpha = alpha
-        self.clockwise = clockwise
-        self.bound = bound
-
-    def getVect(self, point):
-        if self.inCircle(point):
-            velocity = self.repulse * (self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound
-            return Vector(self.getAngleFromCenter(point), velocity)
-        elif self.inBound(point, self.bound):
-            velocity = self.alpha * ((self.bound + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound) + 10
-            return Vector(self.getAngleTangentToCenter(point, self.clockwise), self.alpha)
-        elif self.inBound(point, self.bound * 2):
-            velocity = self.attract * ((self.bound * 2 + self.getCircleRadius() - self.getDistanceFromCenter(point)) / self.bound)
-            return Vector(self.getAngleToCenter(point), velocity)
-        else:
-            return Vector(0, 0)
-
-# RandomField Class
-class RandomField(Field):
-    
-    def __init__(self, id, alpha):
-        Field.__init__(self, id)
-        self.alpha = alpha
-
-    def getVect(self, point):
-        magnitude = self.alpha * random.random()
-        direction = (2 * random.random() - 1) * math.pi
-        return Vector(direction, magnitude)
-
-# BoxCanyonField Class
-class BoxCanyonField(Field):
-    
-    def __init__(self, id, alpha, bound, origX, origY, width, height):
-        Field.__init__(self, id)
-        self.alpha = alpha
-        self.bound = bound
-        self.origX = origX
-        self.origY = origY
-        self.width = width
-        self.height = height
-    
-    def getVect(self, point):
-        onLeft = onRight = onTop = onBottom = False
-        
-        if point.x >= self.origX and point.x < self.origX + self.bound:
-            onLeft = True
-        if point.x > self.origX + self.width - self.bound and point.x <= self.origX + self.width:
-            onRight = True
-        if point.y >= self.origY and point.y < self.origY + self.bound:
-            onTop = True
-        if point.y > self.origX + self.height - self.bound and point.y <= self.origY + self.height:
-            onBottom = True
-
-        if onLeft and onTop:
-            return Vector(-math.pi / 4, self.alpha * math.sqrt(2))
-        elif onLeft and onBottom:
-            return Vector(math.pi / 4, self.alpha * math.sqrt(2))
-        elif onRight and onTop:
-            return Vector(-3 * math.pi / 4, self.alpha * math.sqrt(2))
-        elif onRight and onBottom:
-            return Vector(3 * math.pi / 4, self.alpha * math.sqrt(2))
-        elif onLeft:
-            return Vector(0, self.alpha)
-        elif onRight:
-            return Vector(math.pi, self.alpha)
-        elif onTop:
-            return Vector(-math.pi / 2, self.alpha)
-        elif onBottom:
-            return Vector(math.pi / 2, self.alpha)
-        else:
-            return Vector(0, 0)
 
 # You implement this class
 class Controller:
@@ -285,13 +15,14 @@ class Controller:
     def __init__(self):
         self.cmdVelPub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         self.trackposSub = rospy.Subscriber("tracked_pos", Pose2D, self.trackposCallback)
+        self.world = World(785, 575)
 
     def trackposCallback(self, msg):
         # This function is continuously called
         if not self.stop:
             twist = Twist()
             # Change twist.linear.x to be your desired x velocity
-    	    velocity = self.getVelocity(msg)
+            velocity = self.world.getVelocity(msg)
             twist.linear.x = velocity.x
             # Change twist.linear.y to be your desired y velocity
             twist.linear.y = velocity.y
@@ -301,53 +32,23 @@ class Controller:
             twist.angular.z = 0
             self.cmdVelPub.publish(twist)
 
-    def getVelocity(self, msg):
-        #Get the location of the sphero
-        spheroPoint = Point(msg.x, msg.y)
-        #Get the vector towards the goal.
-        x = y = 0
-        print "fields: " + str(self.fields)
-        for field in self.fields:
-            if type(field) is AttractiveField and field.inCircle(spheroPoint):
-                return Point(0, 0)
-            tmpPoint = field.getVect(spheroPoint).getPoint()
-            print "vector" + str(field.id) + "=" + str(tmpPoint)
-            x += tmpPoint.x
-            y += tmpPoint.y
-        point = Point(x, y)
-        #print "velocity= " + str(point)
-        return point
-
     def start(self):
         rospy.wait_for_service("apriltags_info")
         try:
             info_query = rospy.ServiceProxy("apriltags_info", apriltags_info)
             resp = info_query()
 
-            self.fields = []
             for i in range(len(resp.polygons)):
                 # A polygon (access points using poly.points)
                 poly = resp.polygons[i]
-
                 # The polygon's id (just an integer, 0 is goal, all else is bad)
                 t_id = resp.ids[i]
-
                 polyPoints = []
                 for point in poly.points:
                     polyPoints.append(Point(point.x, point.y))
+                self.world.addTag(PolyField(t_id, polyPoints))
 
-                if t_id == 0:
-                    self.fields.append(AttractiveField(t_id, 100, 300, polyPoints))
-                elif t_id == 2:
-                    self.fields.append(TangentialField(t_id, 40, 40, 50, True, 100, polyPoints))
-                elif t_id == 3:
-                    self.fields.append(TangentialField(t_id, 40, 40, 50, False, 100, polyPoints))
-                else:
-                    self.fields.append(RepulsiveField(t_id, 50, 300, polyPoints))
-                    #self.fields.append(TangentialField(t_id, 0, 0, 20, False, 150, polyPoints))
-                        
-            #self.fields.append(RandomField(4, 40))
-            self.fields.append(BoxCanyonField(5, 50, 100, 0, 0, 785, 575))
+            self.world.createFields()
 
         except Exception, e:
             print "Exception: " + str(e)
