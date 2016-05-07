@@ -1,6 +1,10 @@
 #!/usr/bin/python
 
 import sys, rospy, math
+from World import World
+from Point import Point
+from PolyField import PolyField
+from PathFinder import PathFinder
 from PyQt4 import QtGui, QtCore
 from geometry_msgs.msg import Twist, Pose2D
 from std_msgs.msg import ColorRGBA, Float32, Bool
@@ -15,15 +19,17 @@ class Controller:
     def __init__(self):
         self.cmdVelPub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
         self.trackposSub = rospy.Subscriber("tracked_pos", Pose2D, self.trackposCallback)
+        self.world = World(785, 575)
 
     def trackposCallback(self, msg):
         # This function is continuously called
         if not self.stop:
             twist = Twist()
             # Change twist.linear.x to be your desired x velocity
-            twist.linear.x = 0
+            velocity = self.world.getVelocity(msg)
+            twist.linear.x = velocity.x
             # Change twist.linear.y to be your desired y velocity
-            twist.linear.y = 0
+            twist.linear.y = velocity.y
             twist.linear.z = 0
             twist.angular.x = 0
             twist.angular.y = 0
@@ -41,6 +47,15 @@ class Controller:
                 poly = resp.polygons[i]
                 # The polygon's id (just an integer, 0 is goal, all else is bad)
                 t_id = resp.ids[i]
+                polyPoints = []
+
+		for point in poly.points:
+                    polyPoints.append(Point(point.x, point.y))
+                self.world.addTag(PolyField(t_id, polyPoints))
+
+            self.world.createFields()
+            PathFinder(self.world)
+
         except Exception, e:
             print "Exception: " + str(e)
         finally:
