@@ -1,4 +1,9 @@
-import random, World
+#!/usr/bin/python
+
+import random, math
+from World import World
+from Node import Node
+from Point import Point
 
 # RRT class
 class RRT:
@@ -7,7 +12,7 @@ class RRT:
         self.end = end
         self.delta = delta
         self.world = world
-        #self.path = self.findPath()
+        self.path = self.findPath()
 
     def findPath(self):
         startTree = [Node(self.start, None, [self.start])]
@@ -27,7 +32,10 @@ class RRT:
                     #Link up the two tree paths and return
                     nearNode.point.addAccessiblePoint(newPoint)
                     newPoint.addAccessiblePoint(nearNode.point)
-                    return startTree.path + endTree.path.reverse
+                    startPath = startTree[len(startTree) - 1].path
+                    endPath = endTree[len(endTree) - 1].path
+                    endPath.reverse()
+                    return startPath + endPath
 
             nearNode = self.getNearNode(randPoint, endTree)
             newPoint = self.getNewPoint(randPoint, nearNode.point)
@@ -36,15 +44,18 @@ class RRT:
                 newPoint.addAccessiblePoint(nearNode.point)
                 endTree.append(Node(newPoint, None, nearNode.path + [newPoint]))
                 nearNode = self.getNearNode(newPoint, startTree)
-                if nearNode.distanceTo(newPoint) <= self.delta:
+                if nearNode.point.distanceTo(newPoint) <= self.delta:
                     #Link up the two tree paths and return
                     nearNode.point.addAccessiblePoint(newPoint)
                     newPoint.addAccessiblePoint(nearNode.point)
-                    return startTree.path + endTree.path.reverse
+                    startPath = startTree[len(startTree) - 1].path
+                    endPath = endTree[len(endTree) - 1].path
+                    endPath.reverse()
+                    return startPath + endPath
 
     def getRandPoint(self):
         #Return a new random point within the boundaries of the world
-        bounds = getLowerRightPoint();
+        bounds = self.world.getLowerRightPoint();
         x = random.random() * bounds.x;
         y = random.random() * bounds.y;
         return Point(x, y)

@@ -1,4 +1,8 @@
-import Field
+#!/usr/bin/python
+
+import math
+from Point import Point
+from Field import Field
 
 # PolyField Class
 class PolyField(Field):
@@ -69,13 +73,13 @@ class PolyField(Field):
 
     def inSquare(self, point):
         intersections = 0
-        for index in range(len(poly)):
-            point1 = poly[index]
+        for index in range(len(self.poly)):
+            point1 = self.poly[index]
             point2 = None
-            if (index + 1) in range(len(poly)):
-                point2 = poly[index + 1]
+            if (index + 1) in range(len(self.poly)):
+                point2 = self.poly[index + 1]
             else:
-                point2 = poly[0]
+                point2 = self.poly[0]
             if point.intersectsVertically(point1, point2):
                 intersections += 1
         return intersections % 2 == 1

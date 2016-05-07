@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import math
 
 # Point Class
@@ -7,11 +9,8 @@ class Point:
         self.y = y
         self.accessiblePoints = []
 
-    def inAprilTag(self):
-    	return False
-
-    def isAccessible(self, point):
-    	return self != point and abs(self.x - point.x) <= SIZE_OF_GRID and abs(self.y - point.y) <= SIZE_OF_GRID
+    def isAccessible(self, point, delta):
+    	return self != point and abs(self.x - point.x) <= delta and abs(self.y - point.y) <= delta
 
     def addAccessiblePoint(self, point):
     	self.accessiblePoints.append(point)

@@ -1,4 +1,7 @@
-import Point
+#!/usr/bin/python
+
+import math
+from Point import Point
 
 # Vector Class
 class Vector:

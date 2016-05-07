@@ -1,4 +1,8 @@
-import PolyField
+#!/usr/bin/python
+
+from Point import Point
+from Vector import Vector
+from PolyField import PolyField
 
 # AttractiveField Class
 class AttractiveField(PolyField):

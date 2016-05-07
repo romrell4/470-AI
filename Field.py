@@ -1,4 +1,7 @@
-import Vector
+#!/usr/bin/python
+
+from Point import Point
+from Vector import Vector
 
 # Field Class
 class Field:

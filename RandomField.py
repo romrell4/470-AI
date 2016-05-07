@@ -1,4 +1,7 @@
-import Field
+#!/usr/bin/python
+
+from Vector import Vector
+from Field import Field
 
 # RandomField Class
 class RandomField(Field):
