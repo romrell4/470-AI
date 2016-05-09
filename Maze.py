@@ -10,13 +10,15 @@ class Maze:
     
     def discretize(self, grid_size, x_max, y_max):
         coord = []
-        for i in range(y_max):
+        for i in range(y_max + 1):
+            #print "i=" + str(i) + " y_max=" + str(y_max)
             coord.append([])
-            for j in range(x_max):
-                coord[i].append(Point((i + 1) * grid_size), (j + 1) * grid_size))
+            for j in range(x_max + 1):
+                #print "j=" + str(j) + " x_max=" + str(x_max)
+                coord[i].append(Point((i + 1) * grid_size, (j + 1) * grid_size))
 
-        for i in range(y_max):
-            for j in range(x_max):
+        for i in range(y_max + 1):
+            for j in range(x_max + 1):
                 if i > 0:
                     coord[i][j].addAccessiblePoint(coord[i - 1][j])
                 if i < y_max:
@@ -37,14 +39,14 @@ class Maze:
         
         return coord
             
-    def flatten(self, coord)
+    def flatten(self, coord):
         points = []
         for i in range(len(coord)):
             points = points + coord[i]
         return points
 
     def Test1(self):
-        coord = discretize(35, 20, 14)
+        coord = self.discretize(35, 20, 14)
         
         del coord[0][15]
         del coord[0][11]

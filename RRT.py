@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import random, math
-from World import World
+#from World import World
 from Node import Node
 from Point import Point
 
@@ -71,9 +71,12 @@ class RRT:
 
     def getNewPoint(self, randPoint, nearPoint):
         #Return a new point that is distance self.delta from the near point in the direction of randPoint
-
-        #TODO: If this new point falls inside an apriltag, return None
         atan = math.atan2(randPoint.y - nearPoint.y, randPoint.x - nearPoint.x)
-        x = self.delta * math.cos(atan)
-        y = self.delta * math.sin(atan)
-        return Point(x, y)
+        x = self.delta * math.cos(atan) + nearPoint.x
+        y = self.delta * math.sin(atan) + nearPoint.y
+        pt = Point(x, y)
+        if self.world.inAprilTag(pt):
+            return None
+        return pt
+
+

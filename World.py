@@ -7,11 +7,10 @@ from CreativeField import CreativeField
 from TangentialField import TangentialField
 from RandomField import RandomField
 from BoxCanyonField import BoxCanyonField
-from Maze import Maze
 from PathFinder import PathFinder
 
-SIZE_OF_GRID = 35
-
+SIZE_OF_GRID = 70
+SIZE_OF_FIELD_BOUND = SIZE_OF_GRID / 2
 
 #World Class
 class World:
@@ -96,8 +95,12 @@ class World:
 
     def inAprilTag(self, point):
         for tag in self.tags:
-            if tag.inSquare(point):
-                return True
+            if tag.id >= 0 and tag.id <= 5:
+                continue
+            #if tag.inSquare(point):
+            #    return True
+	    if tag.inBound(point, SIZE_OF_FIELD_BOUND):
+		return True
         return False
 
     def getLowerRightPoint(self):
@@ -123,12 +126,6 @@ class World:
         centers = self.getGridCenters()
         gridmap = self.createGridMap(centers)
         return gridmap
-
-    def getMaze(self, index):
-        return Maze().maze[index]
-
-    def navigate(self):
-        PathFinder(self, self.getMaze(0))
 
 
 

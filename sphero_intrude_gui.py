@@ -4,6 +4,7 @@ import sys, rospy, math
 from World import World
 from Point import Point
 from PolyField import PolyField
+from PathFinder import PathFinder
 from PyQt4 import QtGui, QtCore
 from geometry_msgs.msg import Twist, Pose2D
 from std_msgs.msg import ColorRGBA, Float32, Bool
@@ -52,7 +53,7 @@ class Controller:
                 self.world.addTag(PolyField(t_id, polyPoints))
 
             self.world.createFields()
-            self.world.navigate()
+            PathFinder(self.world)
 
         except Exception, e:
             print "Exception: " + str(e)
