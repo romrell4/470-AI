@@ -7,8 +7,10 @@ from CreativeField import CreativeField
 from TangentialField import TangentialField
 from RandomField import RandomField
 from BoxCanyonField import BoxCanyonField
+from Maze import Maze
+from PathFinder import PathFinder
 
-SIZE_OF_GRID = 50
+SIZE_OF_GRID = 35
 
 
 #World Class
@@ -19,8 +21,9 @@ class World:
         self.tags = []
         self.fields = []
         self.current = 0
-        self.start = Point(0, 0)
-        self.goal = Point(width, height)
+        self.goals = [None, None, None, None, None, None]
+        #self.start = Point(0, 0)
+        #self.goal = Point(width, height)
         self.path = None
 
     def addTag(self, tag):
@@ -34,10 +37,8 @@ class World:
             t_id = self.tags[i].id
             poly = self.tags[i].poly
 
-            if t_id == 0:
-                self.start = self.tags[i].getCenter()
-            elif t_id == 1:
-                self.goal = self.tags[i].getCenter()
+            if t_id >= 0 and t_id <= 5:
+                self.goals[t_id] = self.tags[i].getCenter()
 
             ''' 
             #Lab 1
@@ -55,6 +56,8 @@ class World:
             self.addField(BoxCanyonField(5, 50, 100, 0, 0, self.width, self.height))
             '''
 
+        self.goals[:] = [x for x in self.goals if x != None]
+
     def getVelocity(self, at):
         #Get the location of the sphero
         spheroPoint = Point(at.x, at.y)
@@ -69,10 +72,10 @@ class World:
         dest = self.path[self.current]
 
         x = y = 0
-        up = Point(dest.x, dest.y - 10)
-        left = Point(dest.x - 10, dest.y)
-        down = Point(dest.x, dest.y + 10)
-        right = Point(dest.x + 10, dest.y)
+        up = Point(dest.x, dest.y - 1)
+        left = Point(dest.x - 1, dest.y)
+        down = Point(dest.x, dest.y + 1)
+        right = Point(dest.x + 1, dest.y)
         poly = [up, left, down, right]
         wayPoint = AttractiveField(-1, 80, 200, poly)
         tmpPoint = wayPoint.getVect(spheroPoint).getPoint()
@@ -101,27 +104,31 @@ class World:
         return Point(self.width, self.height)
 
     def getGridCenters(self):
-	gridCenters = []
-	for x in range(SIZE_OF_GRID/2, self.width, SIZE_OF_GRID):
-		for y in range(SIZE_OF_GRID/2, self.height, SIZE_OF_GRID):
-			point = Point(x, y)
-			if not self.inAprilTag(point):
-				gridCenters.append(point)
-	return gridCenters
+        gridCenters = []
+        for x in range(SIZE_OF_GRID/2, self.width, SIZE_OF_GRID):
+            for y in range(SIZE_OF_GRID/2, self.height, SIZE_OF_GRID):
+                point = Point(x, y)
+                if not self.inAprilTag(point):
+                    gridCenters.append(point)
+        return gridCenters
 
     def createGridMap(self, allPoints):
-	for point in allPoints:
-		for otherPoint in allPoints:
-			if point.isAccessible(otherPoint, SIZE_OF_GRID):
-				point.addAccessiblePoint(otherPoint)
-	return allPoints
+        for point in allPoints:
+            for otherPoint in allPoints:
+                if point.isAccessible(otherPoint, SIZE_OF_GRID):
+                    point.addAccessiblePoint(otherPoint)
+        return allPoints
 
     def discretizeArea(self):
         centers = self.getGridCenters()
         gridmap = self.createGridMap(centers)
-	return gridmap
+        return gridmap
 
+    def getMaze(self, index):
+        return Maze().maze[index]
 
+    def navigate(self):
+        PathFinder(self, self.getMaze(0))
 
 
 
