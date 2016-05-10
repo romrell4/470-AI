@@ -9,7 +9,7 @@ from RandomField import RandomField
 from BoxCanyonField import BoxCanyonField
 from PathFinder import PathFinder
 
-SIZE_OF_GRID = 70
+SIZE_OF_GRID = 35
 SIZE_OF_FIELD_BOUND = SIZE_OF_GRID / 2
 
 #World Class
@@ -100,7 +100,7 @@ class World:
             #if tag.inSquare(point):
             #    return True
 	    if tag.inBound(point, SIZE_OF_FIELD_BOUND):
-		return True
+            return True
         return False
 
     def getLowerRightPoint(self):
