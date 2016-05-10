@@ -9,7 +9,7 @@ from RandomField import RandomField
 from BoxCanyonField import BoxCanyonField
 from PathFinder import PathFinder
 
-SIZE_OF_GRID = 35
+SIZE_OF_GRID = 50
 SIZE_OF_FIELD_BOUND = SIZE_OF_GRID / 2
 
 #World Class
@@ -76,7 +76,7 @@ class World:
         down = Point(dest.x, dest.y + 1)
         right = Point(dest.x + 1, dest.y)
         poly = [up, left, down, right]
-        wayPoint = AttractiveField(-1, 80, 200, poly)
+        wayPoint = AttractiveField(-1, 80, 1, poly)
         tmpPoint = wayPoint.getVect(spheroPoint).getPoint()
         x += tmpPoint.x
         y += tmpPoint.y
@@ -100,7 +100,7 @@ class World:
             #if tag.inSquare(point):
             #    return True
 	    if tag.inBound(point, SIZE_OF_FIELD_BOUND):
-            return True
+                return True
         return False
 
     def getLowerRightPoint(self):

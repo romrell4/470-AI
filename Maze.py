@@ -18,9 +18,13 @@ class Maze:
                 grid[i].append(Point((i + 1) * grid_size, (j + 1) * grid_size))
         return grid
     
-    def linkPoints(self, grid)
-        for i in range(y_max + 1):
-            for j in range(x_max + 1):
+    def linkPoints(self, grid):
+        y_max = len(grid) - 1
+        for i in range(y_max):
+            x_max = len(grid[i]) - 1
+            for j in range(x_max):
+                if grid[i][j] is None :
+                    continue
                 if i > 0 and not grid[i - 1][j] is None :
                     grid[i][j].addAccessiblePoint(grid[i - 1][j])
                 if i < y_max and not grid[i + 1][j] is None :

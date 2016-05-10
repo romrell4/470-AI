@@ -12,8 +12,8 @@ RRT_DELTA = 10
 #PathFinder Class
 class PathFinder:
     def __init__(self, world):
-        self.maze = Maze().maze[0]
-        #self.maze = world.discretizeArea()
+        #self.maze = Maze().maze[0]
+        self.maze = world.discretizeArea()
         world.path = []
         for index in range(len(world.goals) - 1):
             #world.path = world.path + self.doRRT(world, world.goals[index], world.goals[index + 1])
@@ -21,7 +21,11 @@ class PathFinder:
         if len(world.goals) >= 1:
             #world.path = world.path + self.doRRT(world, world.goals[len(world.goals) - 1], world.goals[0])
             world.path = world.path + self.doAStar(self.maze, world.goals[len(world.goals) - 1], world.goals[0])
-        
+
+        '''
+        for index in range(len(world.path)):
+            print str(world.path[index])
+        '''
         '''
         aStarPath = self.doAStar(world.discretizeArea(), world.start, world.goal)
         rrtPath = self.doRRT(world, world.goal, world.start)
