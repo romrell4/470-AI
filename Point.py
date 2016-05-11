@@ -9,6 +9,10 @@ class Point:
         self.y = y
         self.accessiblePoints = []
 
+    def equals(self, point):
+        mybool = self.x == point.x and self.y == point.y
+        return mybool
+
     def isAccessible(self, point, delta):
     	return self != point and abs(self.x - point.x) <= delta and abs(self.y - point.y) <= delta
 

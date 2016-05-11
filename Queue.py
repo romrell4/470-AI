@@ -13,6 +13,10 @@ class Queue:
             if node.cost.f < self.q[index].cost.f:
                 self.q.insert(index, node)
                 inList = True
+                self.q = [n for n in self.q if n.cost.f <= node.cost.f or not node.samePoint(n)]
+                break
+            if node.cost.f > self.q[index].cost.f and node.samePoint(self.q[index]):
+                inList = True
                 break
         if not inList:
             self.q.append(node)

@@ -10,6 +10,9 @@ class Node:
         self.cost = cost
         self.path = path
 
+    def samePoint(self, node2):
+        return self.point.equals(node2.point)
+
     def hasPointInPath(self, point):
     	return point in self.path
 
