@@ -1,7 +1,13 @@
-from enum import Enum
-
-class Color(Enum):
+class Color:
     EMPTY, BLACK, WHITE = range(3)
 
-class Direction(Enum):
+class Direction:
     NW, N, NE, W, E, SW, S, SE = range(8)
+
+def getOpposite(color):
+	if color == Color.EMPTY:
+		return Color.EMPTY
+	elif color == Color.BLACK:
+		return Color.WHITE
+	else:
+		return Color.BLACK
