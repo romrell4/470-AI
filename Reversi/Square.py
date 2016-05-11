@@ -25,8 +25,8 @@ class Square:
             raise Exception("Can't remove piece")
         elif self.color == color or self.color == EMPTY:
             return
-        elif self.color == BLACK:
-            self.color == WHITE
-        elif self.color == WHITE:
-            self.color == BLACK
+        elif self.color == Color.BLACK:
+            self.color == Color.WHITE
+        elif self.color == Color.WHITE:
+            self.color == Color.BLACK
         self.neighbor[direction].flip(color)

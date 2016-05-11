@@ -1,16 +1,7 @@
 from enum import Enum
 
 class Color(Enum):
-    EMPTY = 0
-    BLACK = 1
-    WHITE = 2
+    EMPTY, BLACK, WHITE = range(3)
 
 class Direction(Enum):
-    NW = 0
-    N = 1
-    NE = 2
-    W = 3
-    E = 4
-    SW = 5
-    S = 6
-    SE = 7
+    NW, N, NE, W, E, SW, S, SE = range(8)
