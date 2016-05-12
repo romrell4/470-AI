@@ -9,19 +9,22 @@ class Square:
         self.neighbors = [None, None, None, None, None, None, None, None]
 
     def canFlip(self, color, direction):
-        #Add logic - recursively check if can flip in given direction
+        #Recursively check if can flip in given direction
         neighborInDirection = self.neighbors[direction]
-        if (neighborInDirection is None):
+        if neighborInDirection is None:
             return False
 
         return neighborInDirection.piece == color or neighborInDirection.canFlip(color, direction)
 
     def flip(self, color, direction):
-        return None
+        if self.piece != color:
+            self.neighbors[direction].flip(color, direction)
+
+        self.piece = color
 
 
     def isPlayable(self, color):
-        #Add logic - canFlip in at least one direction
+        #Can flip in at least one direction
         if self.piece != Color.EMPTY:
             # print "I am taken!"
             return False
@@ -47,22 +50,30 @@ class Square:
 
     def play(self, color):
         #Add logic - flip in every possible direction
-        for neighbor in self.neighbors:
+
+        enemy = Enums.getOpposite(color)
+        print "My enemy is " + str(enemy)
+
+        for i in range(len(self.neighbors)):
+            neighbor = self.neighbors[i]
+
             if (neighbor is None):
                 continue
-            neighbor.flip()
+
+            if neighbor.piece == enemy and neighbor.canFlip(color, i):
+                neighbor.flip(color, i)
 
 
-    def flip(self, color, direction):
-        if color == Color.EMPTY:
-            raise Exception("Can't remove piece")
-        elif self.color == color or self.color == Color.EMPTY:
-            return
-        elif self.color == Color.BLACK:
-            self.color == Color.WHITE
-        elif self.color == Color.WHITE:
-            self.color == Color.BLACK
-        self.neighbor[direction].flip(color)
+    # def flip(self, color, direction):
+    #     if color == Color.EMPTY:
+    #         raise Exception("Can't remove piece")
+    #     elif self.piece == color or self.piece == Color.EMPTY:
+    #         return
+    #     elif self.piece == Color.BLACK:
+    #         self.piece == Color.WHITE
+    #     elif self.piece == Color.WHITE:
+    #         self.piece == Color.BLACK
+    #     self.neighbors[direction].flip(color, direction)
 
     def __str__(self):
         return "(" + str(self.x) + "," + str(self.y) + ") - " + str(self.piece)

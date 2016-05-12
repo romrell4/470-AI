@@ -9,3 +9,8 @@ squares = board.getPlayableSquares(Color.BLACK)
 for square in squares:
 	print square
 
+play = squares[0]
+play = board.grid[play.x][play.y]
+play.play(Color.BLACK)
+print board
+
