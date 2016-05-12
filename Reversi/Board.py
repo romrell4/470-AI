@@ -49,6 +49,9 @@ class Board:
         self.grid[x][y].play(color)
 
     def __str__(self):
+        return unicode(self).encode('utf-8')
+
+    def __unicode__(self):
         result = ""
         for j in range(SIZE + 2):
             result += "# "
@@ -56,7 +59,13 @@ class Board:
         for j in range(SIZE):
             result += "# "
             for i in range(SIZE):
-                result += str(self.grid[i][j].piece) + " "
+                piece = u'\u0f1d'
+                color = self.grid[i][j].piece
+                if color == Color.BLACK:
+                    piece = u'\u002a'
+                if color == Color.WHITE:
+                    piece = u'\u101d'
+                result += piece + " "
             result += "#\n"
         for j in range(SIZE + 2):
             result += "# "
