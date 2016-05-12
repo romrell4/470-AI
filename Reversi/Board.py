@@ -45,7 +45,7 @@ class Board:
                     playableSquares.append(self.grid[i][j])
         return playableSquares
                     
-    def getConfig(self, x, y, color)
+    def getConfig(self, x, y, color):
         board = Board()
         for i in range(SIZE):
             for j in range(SIZE):
