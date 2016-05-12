@@ -69,11 +69,13 @@ class Board:
 
     def __unicode__(self):
         result = "  A B C D E F G H  \n"
-        for j in range(SIZE + 2):
-            result += "# "
+        result += u'\u2554\u2550'
+        for j in range(SIZE):
+            result += u'\u2550\u2550'
+        result += u'\u2557'
         result += "\n"
         for j in range(SIZE):
-            result += "# "
+            result += u'\u2551' + " "
             for i in range(SIZE):
                 piece = u'\u0f1d'
                 color = self.grid[i][j].piece
@@ -82,11 +84,13 @@ class Board:
                 if color == Color.WHITE:
                     piece = u'\u101d'
                 result += piece + " "
-            result += "# " + str(j+1) + "\n"
-        for j in range(SIZE + 2):
-            result += "# "
+            result += u'\u2551' + " " + str(j+1) + "\n"
+        result += u'\u255a\u2550'
+        for j in range(SIZE):
+            result += u'\u2550\u2550'
+        result += u'\u255d'
         result += "\nBlack: " + str(self.getScore(Color.BLACK))
-        result += "\nWhite: " + str(self.getScore(Color.WHITE))
+        result += " White: " + str(self.getScore(Color.WHITE))
 
         return result + "\n"
 
