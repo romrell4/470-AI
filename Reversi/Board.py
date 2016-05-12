@@ -68,7 +68,7 @@ class Board:
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        result = ""
+        result = "  A B C D E F G H  \n"
         for j in range(SIZE + 2):
             result += "# "
         result += "\n"
@@ -78,11 +78,11 @@ class Board:
                 piece = u'\u0f1d'
                 color = self.grid[i][j].piece
                 if color == Color.BLACK:
-                    piece = u'\u002a'
+                    piece = u'\u25cf'
                 if color == Color.WHITE:
                     piece = u'\u101d'
                 result += piece + " "
-            result += "#\n"
+            result += "# " + str(j+1) + "\n"
         for j in range(SIZE + 2):
             result += "# "
         result += "\nBlack: " + str(self.getScore(Color.BLACK))
