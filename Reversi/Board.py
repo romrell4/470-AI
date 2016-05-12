@@ -44,7 +44,7 @@ class Board:
                 if self.grid[i][j].isPlayable(color):
                     playableSquares.append(self.grid[i][j])
         return playableSquares
-                    
+
     def getConfig(self, x, y, color):
         board = Board()
         for i in range(SIZE):
@@ -52,7 +52,7 @@ class Board:
                 board.grid[i][j].piece = grid[i][j].piece
         board.play(x, y, color)
         return board
-    
+
     def getScore(self, color):
         score = 0
         for i in range(SIZE):
@@ -93,5 +93,3 @@ class Board:
         result += " White: " + str(self.getScore(Color.WHITE))
 
         return result + "\n"
-
-

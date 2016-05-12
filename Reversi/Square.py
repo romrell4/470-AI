@@ -60,4 +60,4 @@ class Square:
                 self.flip(color, i)
 
     def __str__(self):
-        return "(" + str(self.x) + "," + str(self.y) + ") - " + str(self.piece)
+        return "(" + str(self.x) + "," + str(self.y) + ")"
