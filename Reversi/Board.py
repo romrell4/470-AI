@@ -69,4 +69,4 @@ class Board:
             result += "#\n"
         for j in range(SIZE + 2):
             result += "# "
-        return result
+        return result + "\n"
