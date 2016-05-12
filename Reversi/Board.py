@@ -45,6 +45,9 @@ class Board:
                     playableSquares.append(self.grid[i][j])
         return playableSquares
 
+    def play(self, x, y, color):
+        self.grid[x][y].play(color)
+
     def __str__(self):
         result = ""
         for j in range(SIZE + 2):

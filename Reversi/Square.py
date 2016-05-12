@@ -17,20 +17,19 @@ class Square:
         return neighborInDirection.piece == color or neighborInDirection.canFlip(color, direction)
 
     def flip(self, color, direction):
-        if self.piece != color:
-            self.neighbors[direction].flip(color, direction)
-
+        oldColor = self.piece
         self.piece = color
+
+        if oldColor != color:
+            self.neighbors[direction].flip(color, direction)
 
 
     def isPlayable(self, color):
         #Can flip in at least one direction
         if self.piece != Color.EMPTY:
-            # print "I am taken!"
             return False
 
         enemy = Enums.getOpposite(color)
-        # print "My enemy is: " + str(enemy)
 
         for i in range(len(self.neighbors)):
             neighbor = self.neighbors[i]
@@ -39,7 +38,6 @@ class Square:
                 continue
 
             if neighbor.piece == enemy and neighbor.canFlip(color, i):
-                # print "Found an enemy neighbor at " + str(i)
                 return True
 
         return False
@@ -52,7 +50,6 @@ class Square:
         #Add logic - flip in every possible direction
 
         enemy = Enums.getOpposite(color)
-        print "My enemy is " + str(enemy)
 
         for i in range(len(self.neighbors)):
             neighbor = self.neighbors[i]
@@ -61,7 +58,7 @@ class Square:
                 continue
 
             if neighbor.piece == enemy and neighbor.canFlip(color, i):
-                neighbor.flip(color, i)
+                self.flip(color, i)
 
 
     # def flip(self, color, direction):

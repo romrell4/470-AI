@@ -5,12 +5,8 @@ from Enums import Color, Direction
 
 board = Board()
 print board
-squares = board.getPlayableSquares(Color.BLACK)
-for square in squares:
-	print square
-
-play = squares[0]
-play = board.grid[play.x][play.y]
-play.play(Color.BLACK)
+possibilities = board.getPlayableSquares(Color.BLACK)
+choice = possibilities[0]
+board.play(choice.x, choice.y, Color.BLACK)
 print board
 
