@@ -23,7 +23,6 @@ class Square:
         if oldColor != color:
             self.neighbors[direction].flip(color, direction)
 
-
     def isPlayable(self, color):
         #Can flip in at least one direction
         if self.piece != Color.EMPTY:
@@ -59,18 +58,6 @@ class Square:
 
             if neighbor.piece == enemy and neighbor.canFlip(color, i):
                 self.flip(color, i)
-
-
-    # def flip(self, color, direction):
-    #     if color == Color.EMPTY:
-    #         raise Exception("Can't remove piece")
-    #     elif self.piece == color or self.piece == Color.EMPTY:
-    #         return
-    #     elif self.piece == Color.BLACK:
-    #         self.piece == Color.WHITE
-    #     elif self.piece == Color.WHITE:
-    #         self.piece == Color.BLACK
-    #     self.neighbors[direction].flip(color, direction)
 
     def __str__(self):
         return "(" + str(self.x) + "," + str(self.y) + ") - " + str(self.piece)
