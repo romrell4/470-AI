@@ -50,7 +50,7 @@ class Board:
         for i in range(SIZE):
             for j in range(SIZE):
                 board.grid[i][j].piece = grid[i][j].piece
-        board.play(x, y, color))
+        board.play(x, y, color)
         return board
     
     def getScore(self, color):
