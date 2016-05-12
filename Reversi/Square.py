@@ -17,8 +17,7 @@ class Square:
         return neighborInDirection.piece == color or neighborInDirection.canFlip(color, direction)
 
     def flip(self, color, direction):
-        )
-        self.piece
+        return None
 
 
     def isPlayable(self, color):
