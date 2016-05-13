@@ -60,6 +60,17 @@ class Board:
                 if self.grid[i][j].piece == color:
                     score += 1
         return score
+    
+    def getDiff(self, color):
+        enemy = Enums.getOpposite(color)
+        diff = 0
+        for i in range(SIZE):
+            for j in range(SIZE):
+                if self.grid[i][j].piece == color:
+                    diff += 1
+                elif self.grid[i][j].piece == enemy:
+                    diff -= 1
+        return diff
 
     def play(self, x, y, color):
         self.grid[x][y].play(color)
