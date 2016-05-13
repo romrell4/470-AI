@@ -1,4 +1,5 @@
 from Square import Square
+import Enums
 from Enums import Color, Direction
 
 SIZE = 8
@@ -35,6 +36,13 @@ class Board:
         self.grid[M2][M2].piece = Color.BLACK
         self.grid[M1][M2].piece = Color.WHITE
         self.grid[M2][M1].piece = Color.WHITE
+        # self.grid[1][1].piece = Color.BLACK
+        # self.grid[2][2].piece = Color.BLACK
+        # self.grid[3][3].piece = Color.BLACK
+        # self.grid[4][4].piece = Color.BLACK
+        # self.grid[4][5].piece = Color.WHITE
+        # self.grid[5][5].piece = Color.BLACK
+        # self.grid[6][6].piece = Color.WHITE
 
     def getPlayableSquares(self, color):
         #Add logic - return list of playable squares for a given color
@@ -49,7 +57,7 @@ class Board:
         board = Board()
         for i in range(SIZE):
             for j in range(SIZE):
-                board.grid[i][j].piece = grid[i][j].piece
+                board.grid[i][j].piece = self.grid[i][j].piece
         board.play(x, y, color)
         return board
 
