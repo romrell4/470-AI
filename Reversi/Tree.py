@@ -11,11 +11,11 @@ class Tree:
 
     def getBest(self):
         #TODO: choose a best option
-        best = options[0]
-        return [best.x, best.y]
+        best = 0
+        return best
 
     def getResult(self, option):
-        return Tree(self.root.getConfig(option.x, option.y, self.color) self.enemy)
+        return Tree(self.root.getConfig(option.x, option.y, self.color), self.enemy)
 
     def getState(self):
         return self.root.getDiff(self.color)
