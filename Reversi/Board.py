@@ -32,17 +32,17 @@ class Board:
                     self.grid[i][j].neighbors[Direction.SW] = self.grid[i - 1][j + 1]
                 if i < MAX and j < MAX:
                     self.grid[i][j].neighbors[Direction.SE] = self.grid[i + 1][j + 1]
-        self.grid[M1][M1].piece = Color.BLACK
-        self.grid[M2][M2].piece = Color.BLACK
-        self.grid[M1][M2].piece = Color.WHITE
-        self.grid[M2][M1].piece = Color.WHITE
-        # self.grid[1][1].piece = Color.BLACK
-        # self.grid[2][2].piece = Color.BLACK
-        # self.grid[3][3].piece = Color.BLACK
-        # self.grid[4][4].piece = Color.BLACK
-        # self.grid[4][5].piece = Color.WHITE
-        # self.grid[5][5].piece = Color.BLACK
-        # self.grid[6][6].piece = Color.WHITE
+        # self.grid[M1][M1].piece = Color.BLACK
+        # self.grid[M2][M2].piece = Color.BLACK
+        # self.grid[M1][M2].piece = Color.WHITE
+        # self.grid[M2][M1].piece = Color.WHITE
+
+        #Config for testing Alpha Beta pruning
+        self.grid[3][2].piece = Color.BLACK
+        self.grid[3][3].piece = Color.BLACK
+        self.grid[3][4].piece = Color.WHITE
+        self.grid[3][5].piece = Color.BLACK
+        self.grid[4][4].piece = Color.BLACK
 
     def getPlayableSquares(self, color):
         #Add logic - return list of playable squares for a given color

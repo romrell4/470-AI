@@ -7,9 +7,9 @@ from Tree import Tree
 class Reversi:
     def __init__(self):
         self.board = Board()
-        self.player = Color.WHITE
+        self.player = Color.BLACK
         self.ai = Enums.getOpposite(self.player)
-        self.turn = self.player
+        self.turn = self.ai
 
     def start(self):
         # Print the board to start
