@@ -19,62 +19,7 @@ class Tree:
 
     def getBest(self):
         #TODO: choose a best option
-
-
-        # This is greedy method
-        # diffs = []
-
-        # for option in self.options:
-        #     # print "Option: " + str(option)
-        #     diffs.append(self.branch(option).board.getDiff(self.color))
-
-        # maxIndex = 0
-        # for i in range(len(diffs)):
-        #     if diffs[i] > diffs[maxIndex]:
-        #         maxIndex = i
-
-        # return maxIndex
-
-
-
-
-        #This is for iterative pruning method
-        # bests = []
-
-        # for option in self.options:
-        #     theirTree = self.branch(option)
-
-        #     maxIndex = 0
-        #     theirDiffs = []
-        #     theirOptions = theirTree.options
-
-        #     print theirTree.board
-        #     print "The value for this tree is " + str(theirTree.board.getDiff(self.color))
-
-        #     for theirOption in theirOptions:
-        #         print theirOption
-        #         ourTree = theirTree.branch(theirOption)
-
-        #         ourOptions = ourTree.options
-
-        #         print ourTree.board
-        #         print "The value for this tree is " + str(ourTree.board.getDiff(self.color))
-
-        #         # theirDiffs.append(ourTree.board.getDiff(theirTree.color))
-
-        #         for ourOption in ourOptions:
-        #             print ourOption
-
-        #             theirTree2 = ourTree.branch(ourOption)
-
-        #             print theirTree2.board
-        #             print "The value for this tree is " + str(theirTree2.board.getDiff(self.color))
-
-
-
-        #     print ""
-
-        best = self.checkBranches(3, self.color)
+        best = self.checkBranches(5, self.color)
 
         print best #[INDEX]
         return best[INDEX]
@@ -98,7 +43,6 @@ class Tree:
                 option = self.options[index]
                 tree = self.branch(option)
                 score = tree.checkBranches(depth - 1, color)[SCORE]
-                #print "The score is " + str(score) + " at depth:" + str(depth) + " index:" + str(index)
                 if score[enemy] == 0:
                     return [index, score]
                 if score[color] - score[enemy] > min[SCORE][color] - min[SCORE][enemy]:
@@ -112,7 +56,6 @@ class Tree:
                 option = self.options[index]
                 tree = self.branch(option)
                 score = tree.checkBranches(depth - 1, color)[SCORE]
-                #print "The score is " + str(score) + " at depth:" + str(depth) + " index:" + str(index)
                 if score[color] == 0:
                     return [index, score]
                 if score[color] - score[enemy] < max[SCORE][color] - max[SCORE][enemy]:
@@ -133,4 +76,55 @@ class Tree:
         if option is None: return Tree(self.board, self.enemy)
         return Tree(self.board.getConfig(option.x, option.y, self.color), self.enemy)
 
+    def getBestGreedy(self):
+        # This is greedy method
+        diffs = []
+
+        for option in self.options:
+            # print "Option: " + str(option)
+            diffs.append(self.branch(option).board.getDiff(self.color))
+
+        maxIndex = 0
+        for i in range(len(diffs)):
+            if diffs[i] > diffs[maxIndex]:
+                maxIndex = i
+
+        return maxIndex
+
+    def getBestIterative(self):
+        #This is for iterative pruning method
+        bests = []
+
+        for option in self.options:
+            theirTree = self.branch(option)
+
+            maxIndex = 0
+            theirDiffs = []
+            theirOptions = theirTree.options
+
+            print theirTree.board
+            print "The value for this tree is " + str(theirTree.board.getDiff(self.color))
+
+            for theirOption in theirOptions:
+                print theirOption
+                ourTree = theirTree.branch(theirOption)
+
+                ourOptions = ourTree.options
+
+                print ourTree.board
+                print "The value for this tree is " + str(ourTree.board.getDiff(self.color))
+
+                # theirDiffs.append(ourTree.board.getDiff(theirTree.color))
+
+                for ourOption in ourOptions:
+                    print ourOption
+
+                    theirTree2 = ourTree.branch(ourOption)
+
+                    print theirTree2.board
+                    print "The value for this tree is " + str(theirTree2.board.getDiff(self.color))
+
+
+
+            print ""
 
