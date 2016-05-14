@@ -65,7 +65,7 @@ class Tree:
             max[SCORE][color] = SIZE * SIZE
 
             if len(self.options) == 0:
-                return self.branch(None).checkBranches(depth - 1, color, min)
+                return self.branch(None).checkBranches(depth - 1, color, max)
 
             for index in range(len(self.options)):
                 option = self.options[index]
