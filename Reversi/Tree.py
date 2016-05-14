@@ -19,58 +19,73 @@ class Tree:
 
     def getBest(self):
         #TODO: choose a best option
-        best = self.checkBranches(5, self.color)
+        best = self.checkBranches(3, self.color, self.max)
 
         print best #[INDEX]
         return best[INDEX]
 
         #exit()
 
-    def checkBranches(self, depth, color):
+    def checkBranches(self, depth, color, parentScore):
         if depth == 0:
             return [UNKNOWN, self.board.getScore()]
-        
-        # if player has no options, branch to opponent's turn
-        if len(self.options) == 0:
-            return self.branch(None).checkBranches(depth - 1, color)
         
         enemy = Enums.getOpposite(color)
         
         if color == self.color: # Maximize minimum
+            # print "Maximizing Minimum (basically, our turn)"
             min = [UNKNOWN, [0, 0, 0]]
             min[SCORE][enemy] = SIZE * SIZE
+
+            if len(self.options) == 0:
+                return self.branch(None).checkBranches(depth - 1, color, min)
+
             for index in range(len(self.options)):
                 option = self.options[index]
                 tree = self.branch(option)
-                score = tree.checkBranches(depth - 1, color)[SCORE]
+                score = tree.checkBranches(depth - 1, color, min)[SCORE]
                 if score[enemy] == 0:
                     return [index, score]
+
+                #Check the diff to see if we should update our maximized score
                 if score[color] - score[enemy] > min[SCORE][color] - min[SCORE][enemy]:
                     min = [index, score]
+
+                #Check to see if you're already doing better than the parent would be without you
+                if min[SCORE][color] - min[SCORE][enemy] > parentScore[SCORE][color] - parentScore[SCORE][enemy]:
+                    if index != len(self.options) - 1:
+                        print "I am pruning!"
+                    return min
+
             return min
         
         else: # Minimize maximum
+            # print "Minimizing maximum (basically, not our turn)"
             max = [UNKNOWN, [0, 0, 0]]
             max[SCORE][color] = SIZE * SIZE
+
+            if len(self.options) == 0:
+                return self.branch(None).checkBranches(depth - 1, color, min)
+
             for index in range(len(self.options)):
                 option = self.options[index]
                 tree = self.branch(option)
-                score = tree.checkBranches(depth - 1, color)[SCORE]
+                score = tree.checkBranches(depth - 1, color, max)[SCORE]
                 if score[color] == 0:
                     return [index, score]
+
+                #Check the diff to see if we should update our minimized score
                 if score[color] - score[enemy] < max[SCORE][color] - max[SCORE][enemy]:
                     max = [index, score]
+
+                #Check to see if you're already doing worse than the parent would be without you
+                if max[SCORE][color] - max[SCORE][enemy] < parentScore[SCORE][color] - parentScore[SCORE][enemy]:
+                    if index != len(self.options) - 1:
+                        print "I am pruning!"
+
+                    return max
+
             return max
-    
-        '''
-        scores = []
-
-        for option in self.options:
-            tree = self.branch(option)
-            scores.append(tree.checkBranches(depth - 1, color))
-
-        return bests
-        '''
 
     def branch(self, option):
         if option is None: return Tree(self.board, self.enemy)
