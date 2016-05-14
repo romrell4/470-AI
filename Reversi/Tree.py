@@ -19,7 +19,7 @@ class Tree:
 
     def getBest(self):
         #TODO: choose a best option
-        best = self.checkBranches(3, self.color, self.max)
+        best = self.checkBranches(5, self.color, self.max)
 
         print best #[INDEX]
         return best[INDEX]
