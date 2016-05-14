@@ -1,7 +1,7 @@
-from Board import Board, SIZE
+from Board import Board
 from Square import Square
 import Enums
-from Enums import Color
+from Enums import Color, SIZE
 
 UNKNOWN = -1
 INDEX, SCORE = range(2)

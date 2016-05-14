@@ -1,9 +1,7 @@
 from Square import Square
 import Enums
-from Enums import Color, Direction
+from Enums import Color, Direction, SIZE, MAX
 
-SIZE = 8
-MAX = SIZE - 1
 M2 = SIZE / 2
 M1 = M2 - 1
 
@@ -67,7 +65,7 @@ class Board:
         score = [0, 0, 0]
         for i in range(SIZE):
             for j in range(SIZE):
-                score[self.grid[i][j].piece] += 1
+                score[self.grid[i][j].piece] += Enums.getScore(i, j)
         return score
 
     def play(self, x, y, color):
