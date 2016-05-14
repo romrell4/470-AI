@@ -11,3 +11,6 @@ def getOpposite(color):
 		return Color.WHITE
 	else:
 		return Color.BLACK
+
+def getAlpha(pos):
+    return chr(pos + ord('A'))

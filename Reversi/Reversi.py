@@ -48,7 +48,7 @@ class Reversi:
     def getChoiceUser(self, possibilities):
         count = 1
         for pos in possibilities:
-            print str(count)+":", "("+self.getAlpha(pos.x)+","+str(pos.y+1)+")"
+            print str(count)+":", "("+Enums.getAlpha(pos.x)+","+str(pos.y+1)+")"
             count = count + 1
 
         while(True):
@@ -68,9 +68,6 @@ class Reversi:
         print self.board
         # raw_input("Continue?")
         self.turn = Enums.getOpposite(self.turn)
-    
-    def getAlpha(self, pos):
-        return chr(pos + ord('A'))
 
 game = Reversi()
 game.start()

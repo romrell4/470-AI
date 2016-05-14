@@ -1,14 +1,21 @@
-from Board import Board
+from Board import Board, SIZE
 from Square import Square
 import Enums
 from Enums import Color
 
+UNKNOWN = -1
+INDEX, SCORE = range(2)
+
 class Tree:
     def __init__(self, board, color):
-        self.root = board
+        self.board = board
         self.color = color
         self.enemy = Enums.getOpposite(color)
         self.options = board.getPlayableSquares(color)
+        self.min = [UNKNOWN, [0, 0, 0]]
+        self.min[SCORE][self.enemy] = SIZE * SIZE
+        self.max = [UNKNOWN, [0, 0, 0]]
+        self.max[SCORE][self.color] = SIZE * SIZE
 
     def getBest(self):
         #TODO: choose a best option
@@ -19,7 +26,7 @@ class Tree:
 
         # for option in self.options:
         #     # print "Option: " + str(option)
-        #     diffs.append(self.getResult(option).root.getDiff(self.color))
+        #     diffs.append(self.branch(option).board.getDiff(self.color))
 
         # maxIndex = 0
         # for i in range(len(diffs)):
@@ -35,60 +42,95 @@ class Tree:
         # bests = []
 
         # for option in self.options:
-        #     theirTree = self.getResult(option)
+        #     theirTree = self.branch(option)
 
         #     maxIndex = 0
         #     theirDiffs = []
         #     theirOptions = theirTree.options
 
-        #     print theirTree.root
-        #     print "The value for this tree is " + str(theirTree.root.getDiff(self.color))
+        #     print theirTree.board
+        #     print "The value for this tree is " + str(theirTree.board.getDiff(self.color))
 
         #     for theirOption in theirOptions:
         #         print theirOption
-        #         ourTree = theirTree.getResult(theirOption)
+        #         ourTree = theirTree.branch(theirOption)
 
         #         ourOptions = ourTree.options
 
-        #         print ourTree.root
-        #         print "The value for this tree is " + str(ourTree.root.getDiff(self.color))
+        #         print ourTree.board
+        #         print "The value for this tree is " + str(ourTree.board.getDiff(self.color))
 
-        #         # theirDiffs.append(ourTree.root.getDiff(theirTree.color))
+        #         # theirDiffs.append(ourTree.board.getDiff(theirTree.color))
 
         #         for ourOption in ourOptions:
         #             print ourOption
 
-        #             theirTree2 = ourTree.getResult(ourOption)
+        #             theirTree2 = ourTree.branch(ourOption)
 
-        #             print theirTree2.root
-        #             print "The value for this tree is " + str(theirTree2.root.getDiff(self.color))
+        #             print theirTree2.board
+        #             print "The value for this tree is " + str(theirTree2.board.getDiff(self.color))
 
 
 
         #     print ""
 
-        best = self.checkChildren(2, self.color)
+        best = self.checkBranches(3, self.color)
 
-        print best
+        print best #[INDEX]
+        return best[INDEX]
 
-        exit()
+        #exit()
 
-    def checkChildren(self, depth, color):
+    def checkBranches(self, depth, color):
         if depth == 0:
-            print "I am the bottom! My value is: " + str(self.root.getDiff(color))
-            return self.root.getDiff(color)
-
-        bests = []
+            return [UNKNOWN, self.board.getScore()]
+        
+        # if player has no options, branch to opponent's turn
+        if len(self.options) == 0:
+            return self.branch(None).checkBranches(depth - 1, color)
+        
+        enemy = Enums.getOpposite(color)
+        
+        if color == self.color: # Maximize minimum
+            min = [UNKNOWN, [0, 0, 0]]
+            min[SCORE][enemy] = SIZE * SIZE
+            for index in range(len(self.options)):
+                option = self.options[index]
+                tree = self.branch(option)
+                score = tree.checkBranches(depth - 1, color)[SCORE]
+                #print "The score is " + str(score) + " at depth:" + str(depth) + " index:" + str(index)
+                if score[enemy] == 0:
+                    return [index, score]
+                if score[color] - score[enemy] > min[SCORE][color] - min[SCORE][enemy]:
+                    min = [index, score]
+            return min
+        
+        else: # Minimize maximum
+            max = [UNKNOWN, [0, 0, 0]]
+            max[SCORE][color] = SIZE * SIZE
+            for index in range(len(self.options)):
+                option = self.options[index]
+                tree = self.branch(option)
+                score = tree.checkBranches(depth - 1, color)[SCORE]
+                #print "The score is " + str(score) + " at depth:" + str(depth) + " index:" + str(index)
+                if score[color] == 0:
+                    return [index, score]
+                if score[color] - score[enemy] < max[SCORE][color] - max[SCORE][enemy]:
+                    max = [index, score]
+            return max
+    
+        '''
+        scores = []
 
         for option in self.options:
-            tree = self.getResult(option)
-            bests.append(tree.checkChildren(depth - 1, color))
+            tree = self.branch(option)
+            scores.append(tree.checkBranches(depth - 1, color))
 
-        print "Here is the best of all my children: " + str(max(bests))
         return bests
+        '''
 
-    def getResult(self, option):
-        return Tree(self.root.getConfig(option.x, option.y, self.color), self.enemy)
+    def branch(self, option):
+        if option is None: return Tree(self.board, self.enemy)
+        return Tree(self.board.getConfig(option.x, option.y, self.color), self.enemy)
 
-    def getState(self):
-        return self.root.getDiff(self.color)
+

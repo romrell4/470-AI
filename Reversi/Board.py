@@ -32,17 +32,19 @@ class Board:
                     self.grid[i][j].neighbors[Direction.SW] = self.grid[i - 1][j + 1]
                 if i < MAX and j < MAX:
                     self.grid[i][j].neighbors[Direction.SE] = self.grid[i + 1][j + 1]
-        # self.grid[M1][M1].piece = Color.BLACK
-        # self.grid[M2][M2].piece = Color.BLACK
-        # self.grid[M1][M2].piece = Color.WHITE
-        # self.grid[M2][M1].piece = Color.WHITE
+        self.grid[M1][M1].piece = Color.BLACK
+        self.grid[M2][M2].piece = Color.BLACK
+        self.grid[M1][M2].piece = Color.WHITE
+        self.grid[M2][M1].piece = Color.WHITE
 
         #Config for testing Alpha Beta pruning
+        '''
         self.grid[3][2].piece = Color.BLACK
         self.grid[3][3].piece = Color.BLACK
         self.grid[3][4].piece = Color.WHITE
         self.grid[3][5].piece = Color.BLACK
         self.grid[4][4].piece = Color.BLACK
+        '''
 
     def getPlayableSquares(self, color):
         #Add logic - return list of playable squares for a given color
@@ -61,24 +63,12 @@ class Board:
         board.play(x, y, color)
         return board
 
-    def getScore(self, color):
-        score = 0
+    def getScore(self):
+        score = [0, 0, 0]
         for i in range(SIZE):
             for j in range(SIZE):
-                if self.grid[i][j].piece == color:
-                    score += 1
+                score[self.grid[i][j].piece] += 1
         return score
-    
-    def getDiff(self, color):
-        enemy = Enums.getOpposite(color)
-        diff = 0
-        for i in range(SIZE):
-            for j in range(SIZE):
-                if self.grid[i][j].piece == color:
-                    diff += 1
-                elif self.grid[i][j].piece == enemy:
-                    diff -= 1
-        return diff
 
     def play(self, x, y, color):
         self.grid[x][y].play(color)
@@ -87,7 +77,10 @@ class Board:
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        result = "  A B C D E F G H  \n"
+        result = "  "
+        for j in range(SIZE):
+            result += Enums.getAlpha(j) + " "
+        result += " \n"
         result += u'\u2554\u2550'
         for j in range(SIZE):
             result += u'\u2550\u2550'
@@ -108,7 +101,8 @@ class Board:
         for j in range(SIZE):
             result += u'\u2550\u2550'
         result += u'\u255d'
-        result += "\nBlack: " + str(self.getScore(Color.BLACK))
-        result += " White: " + str(self.getScore(Color.WHITE))
+        score = self.getScore()
+        result += "\nBlack: " + str(score[Color.BLACK])
+        result += " White: " + str(score[Color.WHITE])
 
         return result + "\n"
