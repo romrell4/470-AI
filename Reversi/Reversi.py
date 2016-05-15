@@ -71,6 +71,8 @@ class Reversi:
         
         while(True):
             color = raw_input('Select a color: ')
+            if not color.isdigit():
+                continue
             color = int(color)
             if color == Color.BLACK or color == Color.WHITE:
                 break
@@ -89,6 +91,8 @@ class Reversi:
 
         while(True):
             move = raw_input('Enter your move: ')
+            if not move.isdigit():
+                continue
             choice = int(move)
             if choice != 0 and choice < len(possibilities)+1:
                 break
