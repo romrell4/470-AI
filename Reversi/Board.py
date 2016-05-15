@@ -83,20 +83,14 @@ class Board:
         for j in range(SIZE):
             result += u'\u2551' + " "
             for i in range(SIZE):
-                piece = u'\u0f1d'
-                color = self.grid[i][j].piece
-                if color == Color.BLACK:
-                    piece = u'\u25cf'
-                if color == Color.WHITE:
-                    piece = u'\u101d'
-                result += piece + " "
+                result += Color.chr[self.grid[i][j].piece] + " "
             result += u'\u2551' + " " + str(j+1) + "\n"
         result += u'\u255a\u2550'
         for j in range(SIZE):
             result += u'\u2550\u2550'
         result += u'\u255d'
         score = self.getScore(False)
-        result += "\nBlack: " + str(score[Color.BLACK])
-        result += " White: " + str(score[Color.WHITE])
+        result += "\n" + Color.str[Color.BLACK] + ": " + str(score[Color.BLACK])
+        result += " " + Color.str[Color.WHITE] + ": " + str(score[Color.WHITE])
 
         return result + "\n"
