@@ -1,7 +1,7 @@
 from Board import Board
 from Square import Square
 import Enums
-from Enums import Color, DEPTH
+from Enums import Color
 
 UNKNOWN = -1
 INDEX, SCORE = range(2)
@@ -17,10 +17,10 @@ class Tree:
         if option is None: return Tree(self.board, self.enemy)
         return Tree(self.board.getConfig(option.x, option.y, self.color), self.enemy)
 
-    def getBest(self):
+    def getBest(self, depth):
         max = [UNKNOWN, [0, 0, 0]]
         max[SCORE][self.color] = self.board.weight
-        best = self.checkBranches(DEPTH, self.color, max)
+        best = self.checkBranches(depth, self.color, max)
         return best[INDEX]
 
     def checkBranches(self, depth, color, root):

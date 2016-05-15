@@ -3,7 +3,8 @@ import Enums
 from Enums import Color, Direction
 
 class Board:
-    def __init__(self, size):
+    def __init__(self, size, config):
+        self.config = config
         self.size = size
         self.max = size - 1
         self.weight = 0
@@ -50,7 +51,7 @@ class Board:
         return playableSquares
 
     def getConfig(self, x, y, color):
-        board = Board(self.size)
+        board = Board(self.size, self.config)
         for i in range(self.size):
             for j in range(self.size):
                 board.grid[i][j].piece = self.grid[i][j].piece
@@ -104,7 +105,7 @@ class Board:
         return unicode(self).encode('utf-8')
 
     def __unicode__(self):
-        result = "  "
+        result = "\n  "
         for j in range(self.size):
             result += Enums.getAlpha(j) + " "
         result += " \n"
@@ -116,7 +117,7 @@ class Board:
         for j in range(self.size):
             result += u'\u2551' + " "
             for i in range(self.size):
-                result += Color.chr[self.grid[i][j].piece] + " "
+                result += Color.chr[self.config][self.grid[i][j].piece] + " "
             result += u'\u2551' + " " + str(j+1) + "\n"
         result += u'\u255a\u2550'
         for j in range(self.size):
