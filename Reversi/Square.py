@@ -2,9 +2,10 @@ import Enums
 from Enums import Color, Direction
 
 class Square:
-    def __init__(self, x, y):
+    def __init__(self, x, y, value):
         self.x = x
         self.y = y
+        self.value = value
         self.piece = Color.EMPTY
         self.neighbors = [None, None, None, None, None, None, None, None]
 

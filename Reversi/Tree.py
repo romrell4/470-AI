@@ -1,7 +1,7 @@
 from Board import Board
 from Square import Square
 import Enums
-from Enums import Color, SIZE, WEIGHT
+from Enums import Color, DEPTH
 
 UNKNOWN = -1
 INDEX, SCORE = range(2)
@@ -19,8 +19,8 @@ class Tree:
 
     def getBest(self):
         max = [UNKNOWN, [0, 0, 0]]
-        max[SCORE][self.color] = WEIGHT
-        best = self.checkBranches(5, self.color, max)
+        max[SCORE][self.color] = self.board.weight
+        best = self.checkBranches(DEPTH, self.color, max)
         return best[INDEX]
 
     def checkBranches(self, depth, color, root):
@@ -32,7 +32,7 @@ class Tree:
         if color == self.color: # Maximize minimum
             # print "Maximizing Minimum (basically, our turn)"
             min = [UNKNOWN, [0, 0, 0]]
-            min[SCORE][enemy] = WEIGHT
+            min[SCORE][enemy] = self.board.weight
 
             if len(self.options) == 0:
                 return self.branch(None).checkBranches(depth - 1, color, min)
@@ -51,7 +51,7 @@ class Tree:
                 #Check to see if you're already doing better than the root would be without you
                 if min[SCORE][color] - min[SCORE][enemy] > root[SCORE][color] - root[SCORE][enemy]:
                     #if index != len(self.options) - 1:
-                    #    print "I am pruning!"
+                    #    print "I am pruning at depth " + str(depth) + "!"
                     return min
 
             return min
@@ -59,7 +59,7 @@ class Tree:
         else: # Minimize maximum
             # print "Minimizing maximum (basically, not our turn)"
             max = [UNKNOWN, [0, 0, 0]]
-            max[SCORE][color] = WEIGHT
+            max[SCORE][color] = self.board.weight
 
             if len(self.options) == 0:
                 return self.branch(None).checkBranches(depth - 1, color, max)
@@ -78,7 +78,7 @@ class Tree:
                 #Check to see if you're already doing worse than the root would be without you
                 if max[SCORE][color] - max[SCORE][enemy] < root[SCORE][color] - root[SCORE][enemy]:
                     #if index != len(self.options) - 1:
-                    #    print "I am pruning!"
+                    #    print "I am pruning at depth " + str(depth) + "!"
                     return max
 
             return max

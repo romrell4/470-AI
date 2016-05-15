@@ -5,18 +5,11 @@ from Enums import Color
 from Tree import Tree
 
 class Reversi:
-    '''
-    def __init__(self):
-        self.board = Board()
-        self.player = Color.BLACK
-        self.ai = Enums.getOpposite(self.player)
-        self.turn = Color.BLACK
-    '''
 
     def start(self):
         
         while(True):
-            self.board = Board()
+            self.board = Board(8)
             self.player = self.getColorSelection()
             self.ai = Enums.getOpposite(self.player)
             self.turn = Color.BLACK
