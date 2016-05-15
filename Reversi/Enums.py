@@ -1,5 +1,6 @@
 class Color:
     EMPTY, BLACK, WHITE = range(3)
+    str = ["Empty", "Black", "White"]
 
 class Direction:
     NW, N, NE, W, E, SW, S, SE = range(8)
@@ -45,3 +46,11 @@ def getScore(x, y):
 	else:
 		return 1
 
+def getWeightedMax():
+    total = 0
+    for i in range(SIZE):
+        for j in range(SIZE):
+            total += getScore(i, j)
+    return total
+
+WEIGHT = getWeightedMax()

@@ -30,19 +30,10 @@ class Board:
                     self.grid[i][j].neighbors[Direction.SW] = self.grid[i - 1][j + 1]
                 if i < MAX and j < MAX:
                     self.grid[i][j].neighbors[Direction.SE] = self.grid[i + 1][j + 1]
-        self.grid[M1][M1].piece = Color.BLACK
-        self.grid[M2][M2].piece = Color.BLACK
-        self.grid[M1][M2].piece = Color.WHITE
-        self.grid[M2][M1].piece = Color.WHITE
-
-        #Config for testing Alpha Beta pruning
-        '''
-        self.grid[3][2].piece = Color.BLACK
-        self.grid[3][3].piece = Color.BLACK
-        self.grid[3][4].piece = Color.WHITE
-        self.grid[3][5].piece = Color.BLACK
-        self.grid[4][4].piece = Color.BLACK
-        '''
+        self.grid[M1][M1].piece = Color.WHITE
+        self.grid[M2][M2].piece = Color.WHITE
+        self.grid[M1][M2].piece = Color.BLACK
+        self.grid[M2][M1].piece = Color.BLACK
 
     def getPlayableSquares(self, color):
         #Add logic - return list of playable squares for a given color
@@ -61,11 +52,16 @@ class Board:
         board.play(x, y, color)
         return board
 
-    def getScore(self):
+    def getScore(self, weighted):
         score = [0, 0, 0]
-        for i in range(SIZE):
-            for j in range(SIZE):
-                score[self.grid[i][j].piece] += Enums.getScore(i, j)
+        if weighted:
+            for i in range(SIZE):
+                for j in range(SIZE):
+                    score[self.grid[i][j].piece] += Enums.getScore(i, j)
+        else:
+            for i in range(SIZE):
+                for j in range(SIZE):
+                    score[self.grid[i][j].piece] += 1
         return score
 
     def play(self, x, y, color):
@@ -99,7 +95,7 @@ class Board:
         for j in range(SIZE):
             result += u'\u2550\u2550'
         result += u'\u255d'
-        score = self.getScore()
+        score = self.getScore(False)
         result += "\nBlack: " + str(score[Color.BLACK])
         result += " White: " + str(score[Color.WHITE])
 
