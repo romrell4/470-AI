@@ -154,13 +154,15 @@ class Reversi:
                 
     def playAgain(self):
         again = raw_input('Play again? (Y/N): ')
+        if again == "": return False
         again = again.upper()[0]
         return again == 'Y'
     
     def reallyQuit(self):
-        again = raw_input('Are you sure you want to quit? (Y/N): ')
-        again = again.upper()[0]
-        return again == 'Y'
+        quit = raw_input('Are you sure you want to quit? (Y/N): ')
+        if quit == "": return False
+        quit = quit.upper()[0]
+        return quit == 'Y'
 
     def getChoiceUser(self, possibilities):
         count = 1
@@ -170,6 +172,7 @@ class Reversi:
             count = count + 1
         while(True):
             move = raw_input('Enter your move: ')
+            if move == "": continue
             if move.upper()[0] == 'Q':
                 if not self.reallyQuit(): continue
                 else: return None
