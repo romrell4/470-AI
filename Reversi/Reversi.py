@@ -15,8 +15,6 @@ class Reversi:
         self.boardSize = DEFAULT_BOARD_SIZE
         self.display = DEFAULT_DISPLAY
         self.depth = DEFAULT_DEPTH
-        self.player = Color.BLACK
-        self.ai = Color.opp[self.player]
         
         while(True):
             option = self.getOption()
@@ -39,6 +37,8 @@ class Reversi:
     def playGame(self):
         
         while(True):
+            self.player = self.getColorSelection()
+            self.ai = Color.opp[self.player]
             self.turn = Color.BLACK
             self.board = Board(self.boardSize, self.display)
             
