@@ -12,7 +12,7 @@ class Square:
     def canFlip(self, color, direction):
         #Recursively check if can flip in given direction
         neighborInDirection = self.neighbors[direction]
-        if self.piece != Enums.getOpposite(color) or neighborInDirection is None:
+        if self.piece != Color.opp[color] or neighborInDirection is None:
             return False
         return neighborInDirection.piece == color or neighborInDirection.canFlip(color, direction)
 

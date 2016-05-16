@@ -4,28 +4,53 @@ import Enums
 from Enums import Color
 from Tree import Tree
 
+DEFAULT_BOARD_SIZE = 8
+DEFAULT_DISPLAY = 0
+DEFAULT_DEPTH = 5
+
 class Reversi:
 
     def start(self):
         
-        self.config = self.getConfig()
+        self.boardSize = DEFAULT_BOARD_SIZE
+        self.display = DEFAULT_DISPLAY
+        self.depth = DEFAULT_DEPTH
+        self.player = Color.BLACK
+        self.ai = Color.opp[self.player]
         
         while(True):
-            self.board = Board(self.getBoardSize(), self.config)
-            self.depth = self.getSearchDepth()
-            self.player = self.getColorSelection()
-            self.ai = Enums.getOpposite(self.player)
-            self.turn = Color.BLACK
+            option = self.getOption()
+            if option == 0:
+                self.playGame()
+            elif option == 1:
+                while(True):
+                    setting = self.getSetting()
+                    if setting == 0:
+                        self.display = self.getDisplay()
+                    elif setting == 1:
+                        self.boardSize = self.getBoardSize()
+                    elif setting == 2:
+                        self.depth = self.getSearchDepth()
+                    else:
+                        break
+            else:
+                return
+
+    def playGame(self):
         
+        while(True):
+            self.turn = Color.BLACK
+            self.board = Board(self.boardSize, self.display)
+            
             # Print the board to start
             print self.board
-
+            
             done = False
-
+            
             while(True):
                 #Check for all posssible locations
                 possibilities = self.board.getPlayableSquares(self.turn)
-
+                
                 #Check if you had no possible locations
                 if len(possibilities) == 0:
                     print Color.str[self.turn] + " has no legal moves"
@@ -40,28 +65,52 @@ class Reversi:
                         else:
                             print "Tie game!"
                         break
-
+                    
                     #Set the variable to notify the program that you couldn't go
                     done = True
                     self.endTurn()
                     continue
-
+            
                 #Set the variable to notify the program that you could go
                 done = False
                 # compoute best move, by alpha beta
                 #Get the best choice and play it
-
+                
                 if self.turn == self.ai:
                     choice = self.getChoiceComputer(possibilities)
                 else:
                     choice = self.getChoiceUser(possibilities)
-
+                    if choice is None: return
+                
                 self.board.play(choice.x, choice.y, self.turn)
                 self.endTurn()
-
+            
             if not self.playAgain(): return
 
-    def getConfig(self):
+    def getOption(self):
+        print ""
+        print "1: New game"
+        print "2: Settings"
+        print "3: Quit"
+        while(True):
+            opt = raw_input('Select an option: ')
+            if not opt.isdigit(): continue
+            opt = int(opt) - 1
+            if opt in range(3): return opt
+
+    def getSetting(self):
+        print ""
+        print "1: Change board display"
+        print "2: Change board size"
+        print "3: Change computer search depth"
+        print "4: Exit settings"
+        while(True):
+            opt = raw_input('Select an setting: ')
+            if not opt.isdigit(): continue
+            opt = int(opt) - 1
+            if opt in range(4): return opt
+
+    def getDisplay(self):
         print ""
         for i in range(len(Color.chr)):
             conf_str = str(i + 1) + ": "
@@ -107,6 +156,11 @@ class Reversi:
         again = raw_input('Play again? (Y/N): ')
         again = again.upper()[0]
         return again == 'Y'
+    
+    def reallyQuit(self):
+        again = raw_input('Are you sure you want to quit? (Y/N): ')
+        again = again.upper()[0]
+        return again == 'Y'
 
     def getChoiceUser(self, possibilities):
         count = 1
@@ -116,6 +170,9 @@ class Reversi:
             count = count + 1
         while(True):
             move = raw_input('Enter your move: ')
+            if move.upper()[0] == 'Q':
+                if not self.reallyQuit(): continue
+                else: return None
             if not move.isdigit(): continue
             choice = int(move)
             if choice != 0 and choice < len(possibilities)+1:
@@ -124,12 +181,15 @@ class Reversi:
     def getChoiceComputer(self, possibilities):
         print Color.str[self.ai] + " is thinking..."
         choice = Tree(self.board, self.ai).getBest(self.depth)
+        print Color.str[self.ai] + " selects " + \
+        "(" + Enums.getAlpha(possibilities[choice].x) + \
+        "," + str(possibilities[choice].y+1) + ")"
         return possibilities[choice]
 
     def endTurn(self):
         print self.board
         # raw_input("Continue?")
-        self.turn = Enums.getOpposite(self.turn)
+        self.turn = Color.opp[self.turn]
 
 game = Reversi()
 game.start()

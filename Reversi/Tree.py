@@ -10,7 +10,7 @@ class Tree:
     def __init__(self, board, color):
         self.board = board
         self.color = color
-        self.enemy = Enums.getOpposite(color)
+        self.enemy = Color.opp[color]
         self.options = board.getPlayableSquares(color)
     
     def branch(self, option):
@@ -27,7 +27,7 @@ class Tree:
         if depth == 0:
             return [UNKNOWN, self.board.getScore(True)]
         
-        enemy = Enums.getOpposite(color)
+        enemy = Color.opp[color]
         
         if color == self.color: # Maximize minimum
             # print "Maximizing Minimum (basically, our turn)"
