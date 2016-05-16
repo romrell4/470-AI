@@ -105,7 +105,7 @@ class Reversi:
         print "3: Change computer search depth"
         print "4: Exit settings"
         while(True):
-            opt = raw_input('Select an setting: ')
+            opt = raw_input('Select a setting: ')
             if not opt.isdigit(): continue
             opt = int(opt) - 1
             if opt in range(4): return opt
