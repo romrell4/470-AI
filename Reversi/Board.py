@@ -76,7 +76,7 @@ class Board:
             (x == 0 and y == self.max) or \
             (x == self.max and y == 0) or \
             (x == self.max and y == self.max):
-                return self.size
+                return self.size * 2
         elif (x == 0 and y == 1) or \
             (x == 1 and y == 0) or \
             (x == self.max - 1 and y == 0) or \
@@ -92,7 +92,7 @@ class Board:
             (x == self.max - 1 and y == 1) or \
             (x == 1 and y == self.max - 1) or \
             (x == self.max - 1 and y == self.max - 1):
-                return 1
+                return -2
         elif x == 1 or y == 1 or x == self.max - 1 or y == self.max - 1:
             return self.size / 4
         else:
