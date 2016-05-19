@@ -1,32 +1,116 @@
-fileName = "trainingData.txt"
 
-data = open(fileName).read()
+def start(fileName):
+	data = open(fileName).read()
 
-partsOfSpeech = {}
+	stateCount = {}
+	observations = []
+	transitionProbabilities = {}
+	emissionProbabilities = {}
 
-for mapping in data.split():
-	parts = mapping.split("_")
 
-	key = parts[1]
-	value = parts[0].lower()
+	fullList = data.split()
+	for i in range(len(fullList)):
+		currentParts = fullList[i].split("_")
 
-	if key not in partsOfSpeech:
-		partsOfSpeech[key] = {}
+		key = currentParts[1]
+		value = currentParts[0].lower()
+		
+		#Transition logic
+		if i < len(fullList):
+			futureParts = fullList[i + 1 if i != len(fullList) - 1 else 0].split("_")
+			nextKey = futureParts[1]
+			if key not in transitionProbabilities:
+				transitionProbabilities[key] = {}
+			   
+			if nextKey not in transitionProbabilities[key]:
+				transitionProbabilities[key][nextKey] = 0
+			transitionProbabilities[key][nextKey] += 1
 
-	if value not in partsOfSpeech[key]:
-		partsOfSpeech[key][value] = 0
-	partsOfSpeech[key][value] += 1
+		#Emission logic
+		if key not in emissionProbabilities:
+			emissionProbabilities[key] = {}
+		if value not in emissionProbabilities[key]:
+			emissionProbabilities[key][value] = 0
+		emissionProbabilities[key][value] += 1
+		
+		#Observation logic
+		if value not in observations:
+			observations.append(value)
+		
+		if key not in stateCount:
+			stateCount[key] = 0
+		stateCount[key] += 1
 
-for partOfSpeech in partsOfSpeech:
-	print partOfSpeech
+		
+	states = calculateStates(stateCount)
+	startProbabilities = calculateStartProbabilities(stateCount)
+	transitionProbabilities = calculateProbabilities(stateCount, transitionProbabilities)
+	emissionProbabilities = calculateProbabilities(stateCount, emissionProbabilities)
 
-states = [] #These are all the parts of speech
-observations = [] #These are all the words in our training set
-startProbabilities = {} # (1/# of parts of speech) for each part of speech
-transitionProbabilities = {}
-emissionProbabilities = {}
-# viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities)
+	# print states
+	# print observations
+	# print startProbabilities
+	# print transitionProbabilities
+	# print emissionProbabilities
+
+	viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities)
+
+def calculateStates(stateCount):
+	return stateCount.keys()
+
+def calculateStartProbabilities(stateCount):
+	probs = {}
+	for partOfSpeech in stateCount:
+		probs[partOfSpeech] = 1 / float(len(stateCount))
+	return probs
+
+def calculateProbabilities(stateCount, probs):
+	for currentState in probs:
+		#Add the unknown state
+		probs[currentState][""] = 1
+
+		#Divide to make the probability
+		for nextState in probs[currentState]:
+			probs[currentState][nextState] /= float(stateCount[currentState] + 1)
+	return probs
 
 def viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities):
-	print "Viterbi!"
+	V = [{}]
+	for st in states:
+		V[0][st] = {"prob": startProbabilities[st] * emissionProbabilities[st][observations[0] if observations[0] in emissionProbabilities else ""], "prev": None}
+	# Run Viterbi when t > 0
+	for t in range(1, len(observations)):
+		V.append({})
+		for st in states:
+			max_tr_prob = max(V[t-1][prev_st]["prob"]*transitionProbabilities[prev_st][st if st in transitionProbabilities[prev_st] else ""] for prev_st in states)
+			for prev_st in states:
+				if V[t-1][prev_st]["prob"] * transitionProbabilities[prev_st][st if st in transitionProbabilities[prev_st] else ""] == max_tr_prob:
+					max_prob = max_tr_prob * emissionProbabilities[st][observations[t] if observations[t] in emissionProbabilities[st] else ""]
+					V[t][st] = {"prob": max_prob, "prev": prev_st}
+					break
+	for line in dptable(V):
+		print line
+	opt = []
+	# The highest probability
+	max_prob = max(value["prob"] for value in V[-1].values())
+	previous = None
+	# Get most probable state and its backtrack
+	for st, data in V[-1].items():
+		if data["prob"] == max_prob:
+			opt.append(st)
+			previous = st
+			break
+	# Follow the backtrack till the first observation
+	for t in range(len(V) - 2, -1, -1):
+		opt.insert(0, V[t + 1][previous]["prev"])
+		previous = V[t][previous]["prev"]
 
+	print 'The steps of states are ' + ' '.join(opt) + ' with highest probability of %s' % max_prob
+
+def dptable(V):
+	# Print a table of steps from dictionary
+	yield " ".join(("%12d" % i) for i in range(len(V)))
+	for state in V[0]:
+		yield "%.7s: " % state + " ".join("%.7s" % ("%f" % v[state]["prob"]) for v in V)
+
+start("test.txt")
