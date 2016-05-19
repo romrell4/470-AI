@@ -1,7 +1,3 @@
-import time
-
-start = time.time()
-
 fileName = "trainingData.txt"
 # fileName = "test.txt"
 
@@ -28,3 +24,14 @@ for partOfSpeech in partsOfSpeech:
 
 end = time.time()
 print(end - start)
+
+states = [] #These are all the parts of speech
+observations = [] #These are all the words in our training set
+startProbabilities = {} # (1/# of parts of speech) for each part of speech
+transitionProbabilities = {}
+emissionProbabilities = {}
+viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities)
+
+def viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities):
+	print "Viterbi!"
+
