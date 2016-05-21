@@ -143,7 +143,7 @@ def viterbi(states, observations, startProbabilities, transitionProbabilities, e
 
 def dptable(V):
 	# Print a table of steps from dictionary
-	yield " ".join(("%12d" % i) for i in range(len(V)))
+	yield " ".join(("%7d" % i) for i in range(len(V)))
 	for state in V[0]:
 		yield "%.7s: " % state + " ".join("%.7s" % ("%f" % v[state]["prob"]) for v in V)
 
