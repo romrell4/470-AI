@@ -1,5 +1,6 @@
+import math
 
-def start(fileName):
+def train(fileName):
 	data = open(fileName).read()
 
 	stateCount = {}
@@ -42,7 +43,7 @@ def start(fileName):
 		stateCount[key] += 1
 
 		
-	states = calculateStates(stateCount)
+	states = stateCount.keys()
 	startProbabilities = calculateStartProbabilities(stateCount)
 	transitionProbabilities = calculateProbabilities(stateCount, transitionProbabilities)
 	emissionProbabilities = calculateProbabilities(stateCount, emissionProbabilities)
@@ -54,9 +55,6 @@ def start(fileName):
 	# print emissionProbabilities
 
 	viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities)
-
-def calculateStates(stateCount):
-	return stateCount.keys()
 
 def calculateStartProbabilities(stateCount):
 	probs = {}
@@ -72,20 +70,31 @@ def calculateProbabilities(stateCount, probs):
 		#Divide to make the probability
 		for nextState in probs[currentState]:
 			probs[currentState][nextState] /= float(stateCount[currentState] + 1)
+			# probs[currentState][nextState] = math.log10(probs[currentState][nextState])
 	return probs
+
+def ourViterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities):
+	print "Our Viterbi"
+
+
 
 def viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities):
 	V = [{}]
 	for st in states:
-		V[0][st] = {"prob": startProbabilities[st] * emissionProbabilities[st][observations[0] if observations[0] in emissionProbabilities else ""], "prev": None}
+		observation = observations[0] if observations[0] in emissionProbabilities[st] else ""
+		print "Observation: " + observation
+		V[0][st] = {"prob": startProbabilities[st] * emissionProbabilities[st][observation], "prev": None}
+		print "V[0][" + st + "] = " + str(V[0][st])
 	# Run Viterbi when t > 0
 	for t in range(1, len(observations)):
 		V.append({})
 		for st in states:
 			max_tr_prob = max(V[t-1][prev_st]["prob"]*transitionProbabilities[prev_st][st if st in transitionProbabilities[prev_st] else ""] for prev_st in states)
 			for prev_st in states:
-				if V[t-1][prev_st]["prob"] * transitionProbabilities[prev_st][st if st in transitionProbabilities[prev_st] else ""] == max_tr_prob:
-					max_prob = max_tr_prob * emissionProbabilities[st][observations[t] if observations[t] in emissionProbabilities[st] else ""]
+				state = st if st in transitionProbabilities[prev_st] else ""
+				if V[t-1][prev_st]["prob"] * transitionProbabilities[prev_st][state] == max_tr_prob:
+					observation = observations[t] if observations[t] in emissionProbabilities[st] else ""
+					max_prob = max_tr_prob * emissionProbabilities[st][observation]
 					V[t][st] = {"prob": max_prob, "prev": prev_st}
 					break
 	for line in dptable(V):
@@ -113,4 +122,5 @@ def dptable(V):
 	for state in V[0]:
 		yield "%.7s: " % state + " ".join("%.7s" % ("%f" % v[state]["prob"]) for v in V)
 
-start("test.txt")
+train("test.txt")
+# test("test.txt")
