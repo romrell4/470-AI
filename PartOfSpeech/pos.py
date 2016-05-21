@@ -81,15 +81,39 @@ def ourViterbi(states, observations, startProbabilities, transitionProbabilities
 def viterbi(states, observations, startProbabilities, transitionProbabilities, emissionProbabilities):
 	V = [{}]
 	for st in states:
+		# print "We are checking state: " + st
+		# print "We are using the word: " + observations[0]
+		# print "The emissionProbability for this state is: " + str(emissionProbabilities[st])
 		observation = observations[0] if observations[0] in emissionProbabilities[st] else ""
-		print "Observation: " + observation
+		# print "Observation: " + observation
 		V[0][st] = {"prob": startProbabilities[st] * emissionProbabilities[st][observation], "prev": None}
-		print "V[0][" + st + "] = " + str(V[0][st])
+		# print "V[0][" + st + "] = " + str(V[0][st])
+		# print
 	# Run Viterbi when t > 0
+
 	for t in range(1, len(observations)):
+		# print "Starting on word " + str(t) + " which is: " + observations[t]
 		V.append({})
 		for st in states:
+			# print "State: " + st
+
+			# maximum = 0
+			# for prev_st in states:
+				# previousProb = V[t-1][prev_st]["prob"]
+				# state = st if st in transitionProbabilities[prev_st] else ""
+				# transProb = transitionProbabilities[prev_st][state]
+				# print "V[" + str(t-1) + "][" + prev_st + "][prob] = " + str(previousProb)
+				# print "state = " + state
+				# print "transProb = " + str(transProb)
+				# if previousProb*transProb > maximum:
+					# maximum = previousProb*transProb
+
+
+
+
+			
 			max_tr_prob = max(V[t-1][prev_st]["prob"]*transitionProbabilities[prev_st][st if st in transitionProbabilities[prev_st] else ""] for prev_st in states)
+			# print max_tr_prob
 			for prev_st in states:
 				state = st if st in transitionProbabilities[prev_st] else ""
 				if V[t-1][prev_st]["prob"] * transitionProbabilities[prev_st][state] == max_tr_prob:
@@ -97,6 +121,7 @@ def viterbi(states, observations, startProbabilities, transitionProbabilities, e
 					max_prob = max_tr_prob * emissionProbabilities[st][observation]
 					V[t][st] = {"prob": max_prob, "prev": prev_st}
 					break
+		# print
 	for line in dptable(V):
 		print line
 	opt = []
