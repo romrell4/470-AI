@@ -54,9 +54,12 @@ class Viterbi:
         # print transitionProbabilities
         # print emissionProbabilities
 
-    def test(self, fileName):
+    def test(self, filename):
         # Gather observations from new file
         observations = []
+        tokens = open(filename).read().split()
+        for token in tokens:
+            observations.append(token.split("_")[0])
         self.viterbi(observations)
 
     def calculateStartProbabilities(self, stateCount):
@@ -90,7 +93,7 @@ class Viterbi:
             print observations[t]
             V.append({})
             for st in self.states:
-                (max_prob, best_state) = self.get_best_prob_and_state(t, st, self.states, self.transitionProbabilities, V)
+                (max_prob, best_state) = self.get_best_prob_and_state(t, st, self.states, V)
 
                 observation = observations[t] if observations[t] in self.emissionProbabilities[st] else ""
                 V[t][st] = {"prob": max_prob + self.emissionProbabilities[st][observation], "prev": best_state}
