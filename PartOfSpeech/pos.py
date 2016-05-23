@@ -90,8 +90,7 @@ class Viterbi:
             print observations[t]
             V.append({})
             for st in self.states:
-                (max_prob, best_state) = self.get_best_prob_and_state(t, st, self.states, self.transitionProbabilities,
-                                                                      V)
+                (max_prob, best_state) = self.get_best_prob_and_state(t, st, self.states, self.transitionProbabilities, V)
 
                 observation = observations[t] if observations[t] in self.emissionProbabilities[st] else ""
                 V[t][st] = {"prob": max_prob + self.emissionProbabilities[st][observation], "prev": best_state}
