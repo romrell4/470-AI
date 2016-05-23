@@ -14,7 +14,7 @@ class Tagger:
         partsofspeech = []
         for i in range(len(data)):
             tag = data[i].split("_")
-            observations.append(tag[WORD])
+            observations.append(tag[WORD].lower())
             partsofspeech.append(tag[POS])
         self.tests[fileName] = {}
         self.tests[fileName]["text"] = observations
@@ -28,24 +28,28 @@ class Tagger:
         vt = []
         states = self.hmm.states()
         #print str(observations)
-        for t in range(0, len(observations)):
+        for index in range(0, len(observations)):
             vt.append({})
             #print str(observations[t])
             for st in states:
-                emis_prob = self.hmm.emission_probability(st, observations[t])
-                #print "emis_prob " + str(st) + " " + str(observations[t]) + " = " + str(emis_prob)
-                if t == 0: (max_prob, best_state) = (self.hmm.start_probability(st), None)
-                else: (max_prob, best_state) = self.get_best_prob_and_state(t, st, vt)
-                #print str(t) + " " + str(st) + " " + str(max_prob) + " " + str(emis_prob) + " " + str(best_state)
-                vt[t][st] = {"prob": max_prob + emis_prob, "prev": best_state}
+                emis_prob = self.hmm.emission_probability(st, observations[index])
+                # print "emis_prob " + str(st) + " " + str(observations[t]) + " = " + str(emis_prob)
+                if index == 0:
+                    (max_prob, best_state) = (self.hmm.start_probability(st), None)
+                else:
+                    (max_prob, best_state) = self.get_best_prob_and_state(index, st, vt)
+                    # print max_prob, best_state
+                    # exit()
+
+                vt[index][st] = {"prob": max_prob + emis_prob, "prev": best_state}
         return vt
 
-    def get_best_prob_and_state(self, t, st, vt):
+    def get_best_prob_and_state(self, index, st, vt):
         states = self.hmm.states()
         best_state = None
         max_prob = -float("inf")
         for prev_st in states:
-            prevProb = vt[t - 1][prev_st]["prob"]
+            prevProb = vt[index - 1][prev_st]["prob"]
             transProb = self.hmm.transition_probability(prev_st, st)
             product = prevProb + transProb
             if max_prob < product:
@@ -71,14 +75,15 @@ class Tagger:
     def optimal_tags(self, vt):
         opt = []
         # The highest probability
-        max_prob = max(value["prob"] for value in vt[-1].values())
+        max_prob = -float("inf")
         previous = None
-        # Get most probable state and its backtrack
-        for st, data in vt[-1].items():
-            if data["prob"] == max_prob:
-                opt.append(st)
+        for st, value in vt[-1].items():
+            if value["prob"] > max_prob:
+                max_prob = value["prob"]
                 previous = st
-                break
+
+        opt.append(previous)
+
         # Follow the backtrack till the first observation
         for t in range(len(vt) - 2, -1, -1):
             opt.insert(0, vt[t + 1][previous]["prev"])
@@ -102,14 +107,17 @@ class Tagger:
               ' with highest probability of %s' % max_prob
         print fileName + ' tagged with %s accuracy' % accuracy
 
-trainFile = "training_sample.txt"
-testFile = "training_sample.txt"
+trainFile = "trainingData.txt"
+testFile = "testingData.txt"
 #trainFile = "train.txt"
 #testFile = "test.txt"
 tagger = Tagger()
 tagger.train(trainFile)
+# for state in tagger.hmm.states():
+#     print state + ": "+ str(tagger.hmm.start_probability(state))
+
 tagger.test(testFile)
-#tagger.print_table(testFile)
+tagger.print_table(testFile)
 tagger.output(testFile)
 #print str(tagger.hmm.starts)
 #print str(tagger.hmm.transitions[UNKNOWN])

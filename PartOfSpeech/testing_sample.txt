@@ -1,0 +1,1 @@
+Bell_NNP ,_, based_VBN in_IN Los_NNP Angeles_NNP ,_, makes_VBZ and_CC distributes_VBZ electronic_JJ ,_, computer_NN and_CC building_NN products_NNS ._.

@@ -2,14 +2,15 @@ import math
 
 WORD, POS = range(2)
 UNKNOWN = '__'
+UNKNOWN_VALUE = .1
 
 class HMM:
     def __init__(self):
-        self.sts = { UNKNOWN : 1 }
-        self.obs = { UNKNOWN : 1 }
-        self.starts = { UNKNOWN : 1 }
-        self.transitions = { UNKNOWN : { UNKNOWN : 1 } }
-        self.emissions = { UNKNOWN : { UNKNOWN : 1 } }
+        self.sts = { UNKNOWN : UNKNOWN_VALUE }
+        self.obs = { UNKNOWN : UNKNOWN_VALUE }
+        self.starts = { UNKNOWN : UNKNOWN_VALUE }
+        self.transitions = { UNKNOWN : { UNKNOWN : UNKNOWN_VALUE } }
+        self.emissions = { UNKNOWN : { UNKNOWN : UNKNOWN_VALUE } }
     
         self.startCount = 1
         self.wordCount = 0
@@ -43,7 +44,7 @@ class HMM:
             # Transitions logic
             trans = data[i + 1].split("_")[POS] if i < len(data) - 1 else UNKNOWN
             if pos not in self.transitions:
-                self.transitions[pos] = { UNKNOWN : 1 }
+                self.transitions[pos] = { UNKNOWN : UNKNOWN_VALUE }
             if trans not in self.transitions[pos]:
                 self.transitions[pos][trans] = 0
             self.transitions[pos][trans] += 1
@@ -53,7 +54,7 @@ class HMM:
 
             # Emissions logic
             if pos not in self.emissions:
-                self.emissions[pos] = { UNKNOWN : 1 }
+                self.emissions[pos] = { UNKNOWN : UNKNOWN_VALUE }
             if word not in self.emissions[pos]:
                 self.emissions[pos][word] = 0
             self.emissions[pos][word] += 1
@@ -74,14 +75,30 @@ class HMM:
     def transition_probability(self, pos, next):
         st = pos if pos in self.transitions else UNKNOWN
         tr = next if next in self.transitions[st] else UNKNOWN
-        div = self.wordCount if st == UNKNOWN else self.sts[st]
-        return math.log10( self.transitions[st][tr] / float(self.sts[st]) )
+        numerator = self.transitions[st][tr]
+        total_instance = self.sts[st] if st != UNKNOWN else self.wordCount
+        denominator = float(total_instance + UNKNOWN_VALUE)
+        # print "Numerator: " + str(numerator)
+        # print "Denominator: " + str(denominator)
+        return math.log10(numerator / denominator)
         
     def emission_probability(self, pos, word):
         st = pos if pos in self.emissions else UNKNOWN
         obs = word.lower() if word.lower() in self.emissions[st] else UNKNOWN
-        div = self.wordCount if st == UNKNOWN else self.sts[st]
-        #print "emission_probability(" + str(pos) + ", " + str(word) + ")"
-        #print str(self.emissions[st][obs]) + " / " + str(float(self.sts[st]))
-        return math.log10( self.emissions[st][obs] / float(div) )
+        numerator = self.emissions[st][obs]
+        total_instance = self.sts[st] if st != UNKNOWN else self.wordCount
+        denominator = float(total_instance + UNKNOWN_VALUE)
+        # print "Numerator: " + str(numerator)
+        # print "Denominator: " + str(denominator)
+        result = math.log10(numerator / denominator)
+        return result
 
+# hmm = HMM()
+# hmm.train("train.txt")
+# print hmm.emission_probability("AR", "the")
+# print hmm.emission_probability(UNKNOWN, "the")
+# print hmm.emission_probability("PR", "the")
+# print hmm.emissions["AR"]
+# print hmm.emissions[UNKNOWN]
+# print hmm.transition_probability("AR", "NO")
+# print hmm.transition_probability(UNKNOWN, "NO")
