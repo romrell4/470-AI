@@ -2,7 +2,7 @@ import math
 
 WORD, POS = range(2)
 UNKNOWN = '__'
-UNKNOWN_VALUE = .1
+UNKNOWN_VALUE = .01
 
 class HMM:
     def __init__(self):
