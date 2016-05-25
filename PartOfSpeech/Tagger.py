@@ -103,25 +103,12 @@ class Tagger:
             for j in range(len(sts)):
                 acc["matrix"][sts[i]][sts[j]] = 0
 
-        # for i in range(len(obs)):
-        #     if real[i] == guess[i]:
-        #         print "Correct!"
-        #         matches += 1
-        #     else:
-        #         print "Wrong!"
-        #         #if real[i] not in acc["matrix"]:
-        #         #    acc["matrix"][real[i]] = {}
-        #         #if guess[i] not in acc["matrix"][real[i]]:
-        #         #    acc["matrix"][real[i]][guess[i]] = {}
-        #         #if obs[i] not in acc["matrix"][real[i]][guess[i]]:
-        #         #    acc["matrix"][real[i]][guess[i]][obs[i]] = 0
-        #         #acc["matrix"][real[i]][guess[i]][obs[i]] += 1
-        #         acc["matrix"][real[i]][guess[i]] += 1
-        #         acc["errors"] += 1
-
-
         for i in range(len(obs)):
             acc["matrix"][real[i]][guess[i]] += 1
+
+            if real[i] == guess[i]:
+                matches += 1
+
         acc["value"] = matches / float(len(obs))
 
 
