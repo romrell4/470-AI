@@ -54,6 +54,6 @@ class ProseWriter:
 
 
 pw = ProseWriter()
-pw.train("train.txt")
+pw.train("testingData.txt")
 pw.clear_unknowns()
 pw.write(100)

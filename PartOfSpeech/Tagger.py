@@ -91,20 +91,39 @@ class Tagger:
         return (max_prob, opt)
 
     def accuracy(self, fileName):
+        acc = { "matrix" : {}, "errors" : 0 }
+        sts = self.hmm.sts.keys()
         obs = self.tests[fileName]["text"]
         real = self.tests[fileName]["pos_real"]
         guess = self.tests[fileName]["pos_guess"]
         matches = 0
+        
+        for i in range(len(sts)):
+            acc["matrix"][sts[i]] = {}
+            for j in range(len(sts)):
+                acc["matrix"][sts[i]][sts[j]] = 0
+        
         for i in range(len(obs)):
             if real[i] == guess[i]: matches += 1
-        return matches / float(len(obs))
+            else:
+                #if real[i] not in acc["matrix"]:
+                #    acc["matrix"][real[i]] = {}
+                #if guess[i] not in acc["matrix"][real[i]]:
+                #    acc["matrix"][real[i]][guess[i]] = {}
+                #if obs[i] not in acc["matrix"][real[i]][guess[i]]:
+                #    acc["matrix"][real[i]][guess[i]][obs[i]] = 0
+                #acc["matrix"][real[i]][guess[i]][obs[i]] += 1
+                acc["matrix"][real[i]][guess[i]] += 1
+                acc["errors"] += 1
+        acc["value"] = matches / float(len(obs))
+        return acc
 
     def output(self, fileName):
         opt = self.tests[fileName]["pos_guess"]
         max_prob = self.tests[fileName]["prob"]
-        accuracy = self.tests[fileName]["accuracy"]
+        accuracy = self.tests[fileName]["accuracy"]["value"]
         print 'The steps of states are ' + ' '.join(opt) + \
-              ' with highest probability of %s' % max_prob
+              ' with highest probability of E%s' % max_prob
         print fileName + ' tagged with %s accuracy' % accuracy
 
 trainFile = "trainingData.txt"
@@ -113,13 +132,10 @@ testFile = "testingData.txt"
 #testFile = "test.txt"
 tagger = Tagger()
 tagger.train(trainFile)
-# for state in tagger.hmm.states():
-#     print state + ": "+ str(tagger.hmm.start_probability(state))
+
 
 tagger.test(testFile)
 tagger.print_table(testFile)
 tagger.output(testFile)
-#print str(tagger.hmm.starts)
-#print str(tagger.hmm.transitions[UNKNOWN])
-#print str(tagger.hmm.emissions[UNKNOWN])
+print tagger.tests[testFile]["accuracy"]["matrix"]
 
