@@ -97,25 +97,34 @@ class Tagger:
         real = self.tests[fileName]["pos_real"]
         guess = self.tests[fileName]["pos_guess"]
         matches = 0
-        
+
         for i in range(len(sts)):
             acc["matrix"][sts[i]] = {}
             for j in range(len(sts)):
                 acc["matrix"][sts[i]][sts[j]] = 0
-        
+
+        # for i in range(len(obs)):
+        #     if real[i] == guess[i]:
+        #         print "Correct!"
+        #         matches += 1
+        #     else:
+        #         print "Wrong!"
+        #         #if real[i] not in acc["matrix"]:
+        #         #    acc["matrix"][real[i]] = {}
+        #         #if guess[i] not in acc["matrix"][real[i]]:
+        #         #    acc["matrix"][real[i]][guess[i]] = {}
+        #         #if obs[i] not in acc["matrix"][real[i]][guess[i]]:
+        #         #    acc["matrix"][real[i]][guess[i]][obs[i]] = 0
+        #         #acc["matrix"][real[i]][guess[i]][obs[i]] += 1
+        #         acc["matrix"][real[i]][guess[i]] += 1
+        #         acc["errors"] += 1
+
+
         for i in range(len(obs)):
-            if real[i] == guess[i]: matches += 1
-            else:
-                #if real[i] not in acc["matrix"]:
-                #    acc["matrix"][real[i]] = {}
-                #if guess[i] not in acc["matrix"][real[i]]:
-                #    acc["matrix"][real[i]][guess[i]] = {}
-                #if obs[i] not in acc["matrix"][real[i]][guess[i]]:
-                #    acc["matrix"][real[i]][guess[i]][obs[i]] = 0
-                #acc["matrix"][real[i]][guess[i]][obs[i]] += 1
-                acc["matrix"][real[i]][guess[i]] += 1
-                acc["errors"] += 1
+            acc["matrix"][real[i]][guess[i]] += 1
         acc["value"] = matches / float(len(obs))
+
+
         return acc
 
     def output(self, fileName):
@@ -126,16 +135,49 @@ class Tagger:
               ' with highest probability of E%s' % max_prob
         print fileName + ' tagged with %s accuracy' % accuracy
 
+    def print_confusion_matrix(self, fileName):
+        confusion_matrix = tagger.tests[testFile]["accuracy"]["matrix"]
+        keys = confusion_matrix.keys()
+
+        print "     ",
+        for key in keys:
+            print str(key.rjust(5)),
+        print ""
+        for pos in confusion_matrix:
+            print pos.ljust(5),
+            for pos2 in confusion_matrix[pos]:
+                print str(confusion_matrix[pos][pos2]).rjust(5),
+            print ""
+
+    def export_confusion_matrix_to_csv(self, fileName):
+        confusion_matrix = tagger.tests[testFile]["accuracy"]["matrix"]
+        keys = confusion_matrix.keys()
+
+        result = ","
+        for key in keys:
+            result += key + ","
+        result += "\n"
+        for pos in confusion_matrix:
+            result += pos + ","
+            for pos2 in confusion_matrix[pos]:
+                result += str(confusion_matrix[pos][pos2]) + ","
+            result += "\n"
+
+        f = open("result.csv", "w")
+        f.write(result)
+        f.close()
+
+
 trainFile = "trainingData.txt"
 testFile = "testingData.txt"
-#trainFile = "train.txt"
-#testFile = "test.txt"
+# trainFile = "train.txt"
+# testFile = "test.txt"
 tagger = Tagger()
 tagger.train(trainFile)
 
 
 tagger.test(testFile)
-tagger.print_table(testFile)
-tagger.output(testFile)
-print tagger.tests[testFile]["accuracy"]["matrix"]
-
+# tagger.print_table(testFile)
+# tagger.output(testFile)
+# tagger.print_confusion_matrix(testFile)
+tagger.export_confusion_matrix_to_csv(testFile)
