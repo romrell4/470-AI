@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import math
-from Point import Point
 
 # Vector Class
 class Vector:
@@ -10,7 +9,7 @@ class Vector:
         self.direction = direction
         self.magnitude = magnitude
 
-    def getPoint(self):
+    def calculateXandY(self):
         if self.direction > math.pi/2:
             x = -self.magnitude * math.cos(math.pi - self.direction)
             y = self.magnitude * math.sin(math.pi - self.direction)
@@ -21,4 +20,4 @@ class Vector:
             x = self.magnitude * math.cos(self.direction)
             y = self.magnitude * math.sin(self.direction)
 	
-        return Point(x, y)
+        return (x, y)
