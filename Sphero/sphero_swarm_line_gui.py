@@ -9,18 +9,15 @@ from sphero_swarm_node.msg import SpheroTwist, SpheroColor
 from multi_apriltags_tracker.msg import april_tag_pos
 STEP_LENGTH = 50
 PREY_SIMPLE, PREY_TANGENTIAL, PREY_CHOICE, PREY_SMART = range(4)
-PRED_DUMB, PRED_SMART = range(2)
+WAIT, AWAY, LEFT, RIGHT = range(4)
+PRED_DUMB, PRED_SMART, PRED_LEARN = range(3)
 PREY_MODE = PREY_CHOICE
-PRED_MODE = PRED_DUMB
+PRED_MODE = PRED_LEARN
 
 class SpheroSwarmLineForm(QtGui.QWidget):
     
     def __init__(self):
         super(QtGui.QWidget, self).__init__()
-        self.PRED_KEY = 9
-        self.PREY_KEY = 0
-        self.speed = {0:90, 9:160}
-        self.delay = 0
         self.resize(600, 480) 
         self.sphero_dict = {}
         self.initUI()
@@ -33,6 +30,17 @@ class SpheroSwarmLineForm(QtGui.QWidget):
         self.location = {} #dictionary that maps sphero id nums to last known location
 	self.preyLastLocations = [None, None, None, None, None, None, None, None]
 	self.cycles = 0
+        self.PRED_KEY = 9
+        self.PREY_KEY = 0
+        self.speed = {0:70, 9:160}
+        self.delay = 0
+        self.preydir = AWAY
+        self.preylastdir = None
+        self.preddir = 0
+        self.predtable = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
         rospy.init_node('sphero_swarm_line_gui', anonymous=True)
 
@@ -223,6 +231,25 @@ class SpheroSwarmLineForm(QtGui.QWidget):
 		#print "Future Prey Location: " + str((x + self.predLocation[0], y + self.predLocation[1]))
 
 		angle = math.atan2(y, -x)
+
+            elif PRED_MODE == PRED_LEARN:
+                if self.cycles % 2 == 0:
+                    if self.preylastdir != None:
+                        self.predtable[self.preylastdir][self.preddir] = \
+                        .5*(.9*max(self.predtable[self.preydir])+(x*x+y*y)-self.olddist)+ \
+                        .5*self.predtable[self.preylastdir][self.preddir]
+                    print "Step"
+                    print str(self.predtable)
+                    self.preylastdir = self.preydir
+                    self.olddist = (x*x+y*y)
+                    best = float("inf")
+                    for i in range(len(self.predtable[self.preydir])):
+                        if self.predtable[self.preydir][i] < best:
+                            best = self.predtable[self.preydir][i]
+                            self.preddir = i
+
+                angle = math.atan2(y, -x) + self.preddir*math.pi/8
+                print "Pred Direction = " + str(self.preddir)
 	    
 	else:
             mag = self.speed[key]
@@ -245,7 +272,21 @@ class SpheroSwarmLineForm(QtGui.QWidget):
                 else:
                     location = Point(self.preyLocation[0], self.preyLocation[1])
                     options = [math.atan2(-y, x) + math.pi/2, math.atan2(-y, x) - math.pi/2]
-                    angle = getOptimalDirection(location, options)
+                    (angle, heuristic) = getOptimalDirection(location, options)
+                    if heuristic * heuristic < x * x + y * y: 
+                        mag = 0
+            if mag == 0: 
+                print str(self.PREY_KEY) + " Wait! "
+                self.preydir = WAIT
+            elif angle == math.atan2(-y, x): 
+                print str(self.PREY_KEY) + " Away! "
+                self.preydir = AWAY
+            elif angle == math.atan2(-y, x) + math.pi/2: 
+                print str(self.PREY_KEY) + " Left! "
+                self.preydir = LEFT
+            elif angle == math.atan2(-y, x) - math.pi/2: 
+                print str(self.PREY_KEY) + " Right! "
+                self.preydir = RIGHT
 
 	return Vector(angle, mag).calculateXandY()
 

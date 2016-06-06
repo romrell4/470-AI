@@ -2,10 +2,10 @@ import math
 from Point import Point
 
 # Enter the true values here!
-xMin = 30
-yMin = 20
-xMax = 780
-yMax = 560
+xMin = 50
+yMin = 40
+xMax = 750
+yMax = 530
 
 # I programmed this assuming that "location" would be a Location object with attributes x and y
 # and that "options" would be an array of doubles representing angles
@@ -16,7 +16,7 @@ def getOptimalDirection(location, options):
         if heuristic > bestHeuristic["value"]:
             bestHeuristic["index"] = i
             bestHeuristic["value"] = heuristic
-    return options[bestHeuristic["index"]]
+    return (options[bestHeuristic["index"]], bestHeuristic["value"])
 
 def getHeuristicForDirection(location, direction):
     (x, y) = getWallsForDirection(direction)
