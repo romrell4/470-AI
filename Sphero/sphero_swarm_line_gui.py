@@ -30,24 +30,25 @@ class SpheroSwarmLineForm(QtGui.QWidget):
         self.location = {} #dictionary that maps sphero id nums to last known location
 	self.preyLastLocations = [None, None, None, None, None, None, None, None]
 	self.cycles = 0
-        self.PRED_KEY = 9
-        self.PREY_KEY = 0
-        self.speed = {0:70, 9:160}
+        self.PRED_KEY = 5
+        self.PREY_KEY = 1
+        self.speed = {1:90, 5:190}
         self.delay = 0
         self.preydir = [LEFT, RIGHT, LEFT, RIGHT]
         self.preydirindex = 0
+        self.olddist = 100
         self.state = 0
         self.prevstate = 0
         self.preylastdir = None
         self.preddir = 0
-        self.predtable = [[0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0]]
+        self.predtable = [[100,100,100,100,100,100,100,100],
+                          [100,100,100,100,100,100,100,100],
+                          [100,100,100,100,100,100,100,100],
+                          [100,100,100,100,100,100,100,100],
+                          [100,100,100,100,100,100,100,100],
+                          [100,100,100,100,100,100,100,100],
+                          [100,100,100,100,100,100,100,100],
+                          [100,100,100,100,100,100,100,100]]
 
         rospy.init_node('sphero_swarm_line_gui', anonymous=True)
 
@@ -182,7 +183,7 @@ class SpheroSwarmLineForm(QtGui.QWidget):
             return
 
         for key in self.location:
-            self.location[key] = (-1,-1)
+            self.location[key] = (400,300)
 
         for i in range(0,len(msg.id)):
             self.location[msg.id[i]] = (msg.pose[i].x, msg.pose[i].y)
@@ -206,6 +207,9 @@ class SpheroSwarmLineForm(QtGui.QWidget):
     def getVelocityForSphero(self, key):
 	self.predLocation = self.location[self.PRED_KEY]
 	self.preyLocation = self.location[self.PREY_KEY]
+
+        print "PRED: " + str(self.PRED_KEY) + ", " + str(self.location[self.PRED_KEY]),
+        print "PREY: " + str(self.PREY_KEY) + ", " + str(self.location[self.PREY_KEY])
 	
         angle = 0
         mag = 70
@@ -244,22 +248,33 @@ class SpheroSwarmLineForm(QtGui.QWidget):
                 newdist = math.sqrt(x*x+y*y)
                 alpha = 0.5
                 gamma = 0.9
+                reward = self.olddist-newdist
+                #if newdist < 60:
+                #    reward += 1000
                 if self.preylastdir != None:
                     self.predtable[self.prevstate][self.preddir] = \
-                    alpha*(gamma*max(self.predtable[self.state])+self.olddist-newdist)+ \
+                    alpha*(reward+gamma*max(self.predtable[self.state]))+ \
                     (1-alpha)*self.predtable[self.prevstate][self.preddir]
+                self.prevstate = self.state
                 print "Step"
                 print str(self.predtable)
                 self.preylastdir = self.preydir
                 self.olddist = newdist
-                best = float("inf")
+                best = 0
                 for i in range(len(self.predtable[self.state])):
-                    if self.predtable[self.state][i] < best:
+                    if self.predtable[self.state][i] > best:
                         best = self.predtable[self.state][i]
                         self.preddir = i
 
-                angle = math.atan2(y, -x) - math.pi/2 + self.preddir*math.pi/8
+                print "State: " + str(self.state),
+                print "Action: " + str(self.preddir),
+                print "Utility: " + str(best)
+                
+                print "To: " + str(math.atan2(y, -x))
+                print "Go: " + str(math.atan2(y, -x) - math.pi/4 + self.preddir*math.pi/16)
+                angle = math.atan2(y, -x) + math.pi/2 - self.preddir*math.pi/4
                 print "Pred Direction = " + str(self.preddir)
+                print "Pred Key = " + str(self.PRED_KEY)
 	    
 	else:
             mag = self.speed[key]
@@ -299,13 +314,21 @@ class SpheroSwarmLineForm(QtGui.QWidget):
                 self.preydir[self.preydirindex] = RIGHT
             self.preydirindex += 1
             self.preydirindex %= 3
-            self.preytableindex = 0
+            self.state = 0
             if self.preydir[self.preydirindex] == RIGHT:
-                self.preytableindex += 4
+                self.state += 4
+                print "R-",
+            else: print "L-",
             if self.preydir[(self.preydirindex+1)%3] == RIGHT:
-                self.preytableindex += 2
+                self.state += 2
+                print "R-",
+            else: print "L-",
             if self.preydir[(self.preydirindex+2)%3] == RIGHT:
-                self.preytableindex += 1
+                self.state += 1
+                print "R-",
+            else: print "L-",
+
+            print " state=" + str(self.state)
 
 	return Vector(angle, mag).calculateXandY()
 
