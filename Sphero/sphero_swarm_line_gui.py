@@ -34,13 +34,20 @@ class SpheroSwarmLineForm(QtGui.QWidget):
         self.PREY_KEY = 0
         self.speed = {0:70, 9:160}
         self.delay = 0
-        self.preydir = AWAY
+        self.preydir = [LEFT, RIGHT, LEFT, RIGHT]
+        self.preydirindex = 0
+        self.state = 0
+        self.prevstate = 0
         self.preylastdir = None
         self.preddir = 0
-        self.predtable = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                          [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+        self.predtable = [[0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0],
+                          [0,0,0,0,0,0,0,0,0]]
 
         rospy.init_node('sphero_swarm_line_gui', anonymous=True)
 
@@ -233,22 +240,25 @@ class SpheroSwarmLineForm(QtGui.QWidget):
 		angle = math.atan2(y, -x)
 
             elif PRED_MODE == PRED_LEARN:
-                if self.cycles % 2 == 0:
-                    if self.preylastdir != None:
-                        self.predtable[self.preylastdir][self.preddir] = \
-                        .5*(.9*max(self.predtable[self.preydir])+(x*x+y*y)-self.olddist)+ \
-                        .5*self.predtable[self.preylastdir][self.preddir]
-                    print "Step"
-                    print str(self.predtable)
-                    self.preylastdir = self.preydir
-                    self.olddist = (x*x+y*y)
-                    best = float("inf")
-                    for i in range(len(self.predtable[self.preydir])):
-                        if self.predtable[self.preydir][i] < best:
-                            best = self.predtable[self.preydir][i]
-                            self.preddir = i
+                #if self.cycles % 2 == 0:
+                newdist = math.sqrt(x*x+y*y)
+                alpha = 0.5
+                gamma = 0.9
+                if self.preylastdir != None:
+                    self.predtable[self.prevstate][self.preddir] = \
+                    alpha*(gamma*max(self.predtable[self.state])+self.olddist-newdist)+ \
+                    (1-alpha)*self.predtable[self.prevstate][self.preddir]
+                print "Step"
+                print str(self.predtable)
+                self.preylastdir = self.preydir
+                self.olddist = newdist
+                best = float("inf")
+                for i in range(len(self.predtable[self.state])):
+                    if self.predtable[self.state][i] < best:
+                        best = self.predtable[self.state][i]
+                        self.preddir = i
 
-                angle = math.atan2(y, -x) + self.preddir*math.pi/8
+                angle = math.atan2(y, -x) - math.pi/2 + self.preddir*math.pi/8
                 print "Pred Direction = " + str(self.preddir)
 	    
 	else:
@@ -273,20 +283,29 @@ class SpheroSwarmLineForm(QtGui.QWidget):
                     location = Point(self.preyLocation[0], self.preyLocation[1])
                     options = [math.atan2(-y, x) + math.pi/2, math.atan2(-y, x) - math.pi/2]
                     (angle, heuristic) = getOptimalDirection(location, options)
-                    if heuristic * heuristic < x * x + y * y: 
-                        mag = 0
-            if mag == 0: 
-                print str(self.PREY_KEY) + " Wait! "
-                self.preydir = WAIT
-            elif angle == math.atan2(-y, x): 
-                print str(self.PREY_KEY) + " Away! "
-                self.preydir = AWAY
-            elif angle == math.atan2(-y, x) + math.pi/2: 
-                print str(self.PREY_KEY) + " Left! "
-                self.preydir = LEFT
+                    #if heuristic * heuristic < x * x + y * y: 
+                    #    mag = 0
+            #if mag == 0: 
+            #    print str(self.PREY_KEY) + " Wait! "
+            #    self.preydir[self.preydirindex] = WAIT
+            #elif angle == math.atan2(-y, x): 
+            #    print str(self.PREY_KEY) + " Away! "
+            #    self.preydir[self.preydirindex] = AWAY
+            if angle == math.atan2(-y, x) + math.pi/2: 
+                #print str(self.PREY_KEY) + " Left! "
+                self.preydir[self.preydirindex] = LEFT
             elif angle == math.atan2(-y, x) - math.pi/2: 
-                print str(self.PREY_KEY) + " Right! "
-                self.preydir = RIGHT
+                #print str(self.PREY_KEY) + " Right! "
+                self.preydir[self.preydirindex] = RIGHT
+            self.preydirindex += 1
+            self.preydirindex %= 3
+            self.preytableindex = 0
+            if self.preydir[self.preydirindex] == RIGHT:
+                self.preytableindex += 4
+            if self.preydir[(self.preydirindex+1)%3] == RIGHT:
+                self.preytableindex += 2
+            if self.preydir[(self.preydirindex+2)%3] == RIGHT:
+                self.preytableindex += 1
 
 	return Vector(angle, mag).calculateXandY()
 
@@ -300,5 +319,3 @@ if __name__ == '__main__':
     w = SpheroSwarmLineForm()
     w.show()
     sys.exit(app.exec_())
-  
-        
